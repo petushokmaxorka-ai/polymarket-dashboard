@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Polymarket — Ручной вход</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d1117;
+  --surface:#161b22;
+  --surface-2:#21262d;
+  --border:rgba(255,255,255,0.10);
+  --text:#e6edf3;
+  --text-muted:#8b949e;
+  --primary:#00b09b;
+  --primary-dim:rgba(0,176,155,0.15);
+  --primary-glow:rgba(0,176,155,0.25);
+  --success:#3fb950;
+  --success-dim:rgba(63,185,80,0.15);
+  --danger:#f85149;
+  --danger-dim:rgba(248,81,73,0.15);
+  --warning:#d29922;
+  --warning-dim:rgba(210,153,34,0.15);
+  --radius:12px;
+  --radius-sm:8px;
+}
+[data-theme="light"]{
+  --bg:#f5f5f7;
+  --surface:#ffffff;
+  --surface-2:#f0f0f5;
+  --border:rgba(0,0,0,0.08);
+  --text:#111827;
+  --text-muted:#6b7280;
+  --primary:#00a08a;
+  --primary-dim:rgba(0,160,138,0.10);
+}
+html,body{
+  background:var(--bg);
+  color:var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+  font-size:15px;
+  min-height:100vh;
+  padding-bottom:100px;
+}
+.header{
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  padding:14px 16px 12px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  position:sticky;
+  top:0;
+  z-index:10;
+}
+.header-icon{
+  width:32px;height:32px;
+  background:var(--primary-dim);
+  border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:17px;
+}
+.header-title{font-size:16px;font-weight:700;color:var(--text)}
+.header-sub{font-size:11px;color:var(--text-muted);margin-top:1px}
+.body{padding:16px}
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:14px 16px;
+  margin-bottom:12px;
+}
+.card-title{
+  font-size:11px;
+  font-weight:600;
+  color:var(--text-muted);
+  text-transform:uppercase;
+  letter-spacing:.06em;
+  margin-bottom:10px;
+}
+.market-title{
+  font-size:14px;
+  font-weight:600;
+  color:var(--text);
+  line-height:1.4;
+  margin-bottom:8px;
+}
+.market-meta{
+  display:flex;gap:8px;flex-wrap:wrap;
+}
+.tag{
+  font-size:11px;
+  font-weight:500;
+  padding:3px 8px;
+  border-radius:20px;
+  background:var(--surface-2);
+  color:var(--text-muted);
+  border:1px solid var(--border);
+}
+.tag.yes{background:var(--success-dim);color:var(--success);border-color:rgba(63,185,80,.2)}
+.tag.no{background:var(--danger-dim);color:var(--danger);border-color:rgba(248,81,73,.2)}
+.side-selector{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-bottom:4px;
+}
+.side-btn{
+  padding:12px 8px;
+  border-radius:var(--radius-sm);
+  border:2px solid var(--border);
+  background:var(--surface-2);
+  color:var(--text-muted);
+  font-size:14px;
+  font-weight:700;
+  cursor:pointer;
+  text-align:center;
+  transition:all .15s;
+  user-select:none;
+}
+.side-btn:active{transform:scale(.97)}
+.side-btn.selected-yes{
+  border-color:var(--success);
+  background:var(--success-dim);
+  color:var(--success);
+}
+.side-btn.selected-no{
+  border-color:var(--danger);
+  background:var(--danger-dim);
+  color:var(--danger);
+}
+.input-group{margin-bottom:12px}
+.input-label{
+  font-size:12px;
+  font-weight:600;
+  color:var(--text-muted);
+  margin-bottom:6px;
+  display:flex;
+  justify-content:space-between;
+}
+.input-label span{color:var(--primary);cursor:pointer}
+input[type="number"],input[type="text"]{
+  width:100%;
+  background:var(--surface-2);
+  border:1.5px solid var(--border);
+  border-radius:var(--radius-sm);
+  color:var(--text);
+  font-size:16px;
+  font-weight:600;
+  padding:11px 14px;
+  outline:none;
+  transition:border-color .15s;
+  -webkit-appearance:none;
+}
+input:focus{border-color:var(--primary)}
+input::placeholder{color:var(--text-muted);font-weight:400}
+.presets{
+  display:flex;gap:6px;flex-wrap:wrap;
+  margin-top:8px;
+}
+.preset-btn{
+  font-size:12px;font-weight:600;
+  padding:5px 10px;
+  border-radius:20px;
+  border:1.5px solid var(--border);
+  background:var(--surface-2);
+  color:var(--text-muted);
+  cursor:pointer;
+  transition:all .12s;
+}
+.preset-btn:active{transform:scale(.95)}
+.preset-btn.active{
+  border-color:var(--primary);
+  background:var(--primary-dim);
+  color:var(--primary);
+}
+.info-row{
+  display:flex;
+  justify-content:space-between;
+  font-size:12px;
+  padding:5px 0;
+  border-bottom:1px solid var(--border);
+}
+.info-row:last-child{border:none}
+.info-row .label{color:var(--text-muted)}
+.info-row .value{color:var(--text);font-weight:600}
+.info-row .value.green{color:var(--success)}
+.info-row .value.red{color:var(--danger)}
+.warn-box{
+  background:var(--warning-dim);
+  border:1px solid rgba(210,153,34,.25);
+  border-radius:var(--radius-sm);
+  padding:10px 12px;
+  font-size:12px;
+  color:var(--warning);
+  display:flex;gap:8px;align-items:flex-start;
+  margin-bottom:12px;
+}
+.warn-box span{flex:1}
+.footer{
+  position:fixed;
+  bottom:0;left:0;right:0;
+  background:var(--surface);
+  border-top:1px solid var(--border);
+  padding:12px 16px;
+  display:flex;gap:10px;
+}
+.btn{
+  flex:1;
+  padding:13px;
+  border-radius:var(--radius);
+  border:none;
+  font-size:15px;
+  font-weight:700;
+  cursor:pointer;
+  transition:all .15s;
+}
+.btn:active{transform:scale(.97)}
+.btn-cancel{
+  background:var(--surface-2);
+  color:var(--text-muted);
+  border:1.5px solid var(--border);
+  flex:0 0 90px;
+}
+.btn-submit{
+  background:var(--primary);
+  color:#fff;
+}
+.btn-submit:disabled{
+  background:var(--surface-2);
+  color:var(--text-muted);
+  cursor:not-allowed;
+}
+.btn-submit.yes-active{background:var(--success)}
+.btn-submit.no-active{background:var(--danger)}
+.sim-badge{
+  font-size:10px;font-weight:700;
+  padding:2px 7px;
+  border-radius:20px;
+  background:var(--warning-dim);
+  color:var(--warning);
+  border:1px solid rgba(210,153,34,.3);
+  display:inline-block;
+  margin-left:6px;
+  vertical-align:middle;
+}
+.loading{
+  display:none;
+  text-align:center;
+  padding:40px 16px;
+  color:var(--text-muted);
+}
+.spinner{
+  width:32px;height:32px;
+  border:3px solid var(--border);
+  border-top-color:var(--primary);
+  border-radius:50%;
+  animation:spin .7s linear infinite;
+  margin:0 auto 12px;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-icon">📈</div>
+  <div>
+    <div class="header-title">Ручной вход в сделку
+      <span id="simBadge" class="sim-badge" style="display:none">SIMULATION</span>
+    </div>
+    <div class="header-sub" id="headerSub">Polymarket Bot v10</div>
+  </div>
+</div>
+
+<div class="body" id="mainBody">
+
+  <!-- Инфо о рынке -->
+  <div class="card" id="marketCard">
+    <div class="card-title">Рынок</div>
+    <div class="market-title" id="marketTitle">Загрузка...</div>
+    <div class="market-meta" id="marketMeta"></div>
+  </div>
+
+  <!-- Сторона -->
+  <div class="card">
+    <div class="card-title">Сторона</div>
+    <div class="side-selector">
+      <div class="side-btn" id="btnYes" onclick="setSide('YES')">✅ YES</div>
+      <div class="side-btn" id="btnNo"  onclick="setSide('NO')">❌ NO</div>
+    </div>
+  </div>
+
+  <!-- Сумма -->
+  <div class="card">
+    <div class="card-title">Сумма</div>
+    <div class="input-group">
+      <div class="input-label">
+        <span>Сумма (USDC)</span>
+        <span id="balanceHint" onclick="useMax()">Баланс: —</span>
+      </div>
+      <input type="number" id="sizeInput" placeholder="10.00" min="1" step="0.01"
+             oninput="onSizeChange()" />
+      <div class="presets">
+        <div class="preset-btn" onclick="setPreset(5)">$5</div>
+        <div class="preset-btn" onclick="setPreset(10)">$10</div>
+        <div class="preset-btn" onclick="setPreset(25)">$25</div>
+        <div class="preset-btn" onclick="setPreset(50)">$50</div>
+        <div class="preset-btn" onclick="setPreset(100)">$100</div>
+      </div>
+    </div>
+
+    <div class="input-group">
+      <div class="input-label"><span>Лимит-цена (0.01–0.99)</span></div>
+      <input type="number" id="priceInput" placeholder="0.00 — авто" min="0.01" max="0.99" step="0.01"
+             oninput="onPriceChange()" />
+    </div>
+
+    <div class="input-group">
+      <div class="input-label"><span>Тип ордера</span></div>
+      <select id="orderType" style="
+        width:100%;background:var(--surface-2);border:1.5px solid var(--border);
+        border-radius:var(--radius-sm);color:var(--text);font-size:14px;font-weight:600;
+        padding:11px 14px;outline:none;">
+        <option value="GTC">GTC — действует до отмены</option>
+        <option value="FOK">FOK — исполнить или отменить</option>
+        <option value="GTD">GTD — до конца дня</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Итог -->
+  <div class="card">
+    <div class="card-title">Итог</div>
+    <div class="info-row"><span class="label">Рынок</span><span class="value" id="sumMarket" style="max-width:55%;text-align:right;font-size:11px">—</span></div>
+    <div class="info-row"><span class="label">Направление</span><span class="value" id="sumSide">—</span></div>
+    <div class="info-row"><span class="label">Сумма</span><span class="value" id="sumSize">—</span></div>
+    <div class="info-row"><span class="label">Цена</span><span class="value" id="sumPrice">авто</span></div>
+    <div class="info-row"><span class="label">Ордер</span><span class="value" id="sumOrder">GTC</span></div>
+    <div class="info-row"><span class="label">Количество токенов</span><span class="value green" id="sumTokens">—</span></div>
+  </div>
+
+  <div class="warn-box" id="warnBox" style="display:none">
+    <span>⚠️</span>
+    <span id="warnText"></span>
+  </div>
+
+</div>
+
+<div class="loading" id="loadingDiv">
+  <div class="spinner"></div>
+  <div>Отправка ордера...</div>
+</div>
+
+<div class="footer">
+  <button class="btn btn-cancel" onclick="onCancel()">Отмена</button>
+  <button class="btn btn-submit" id="submitBtn" disabled onclick="onSubmit()">
+    Выбери сторону
+  </button>
+</div>
+
+<script>
+// ─── Состояние ───────────────────────────────────────────────────────────────
+const tg = window.Telegram?.WebApp;
+let state = {
+  market_id: "",
+  market_title: "Неизвестный рынок",
+  yes_token_id: "",
+  no_token_id: "",
+  current_price_yes: 0,
+  current_price_no: 0,
+  balance_usdc: 0,
+  trade_mode: "SIMULATION",
+  side: null,
+  size: 0,
+  price: 0,
+};
+
+// ─── Инициализация ───────────────────────────────────────────────────────────
+function init() {
+  if (tg) {
+    tg.ready();
+    tg.expand();
+    // Тема
+    const colorScheme = tg.colorScheme || "dark";
+    document.documentElement.setAttribute("data-theme", colorScheme);
+    // Кнопки
+    tg.MainButton.hide();
+    tg.BackButton.show();
+    tg.BackButton.onClick(() => tg.close());
+  }
+
+  // Параметры из URL
+  const params = new URLSearchParams(window.location.search);
+  state.market_id       = params.get("market_id") || "";
+  state.market_title    = decodeURIComponent(params.get("title") || "Новый рынок");
+  state.yes_token_id    = params.get("yes_tid") || "";
+  state.no_token_id     = params.get("no_tid") || "";
+  state.current_price_yes = parseFloat(params.get("p_yes") || "0") || 0;
+  state.current_price_no  = parseFloat(params.get("p_no")  || "0") || 0;
+  state.balance_usdc    = parseFloat(params.get("balance") || "0") || 0;
+  state.trade_mode      = params.get("mode") || "SIMULATION";
+
+  // Заполняем UI
+  document.getElementById("marketTitle").textContent = state.market_title;
+  document.getElementById("sumMarket").textContent   = state.market_title;
+
+  const meta = document.getElementById("marketMeta");
+  if (state.current_price_yes > 0) {
+    meta.innerHTML += `<span class="tag yes">YES ${(state.current_price_yes*100).toFixed(1)}¢</span>`;
+    meta.innerHTML += `<span class="tag no">NO ${(state.current_price_no*100).toFixed(1)}¢</span>`;
+  }
+  if (state.market_id) {
+    meta.innerHTML += `<span class="tag">${state.market_id.slice(0,12)}…</span>`;
+  }
+
+  // Баланс
+  if (state.balance_usdc > 0) {
+    document.getElementById("balanceHint").textContent = `Баланс: $${state.balance_usdc.toFixed(2)}`;
+  }
+
+  // Режим
+  if (state.trade_mode === "SIMULATION") {
+    document.getElementById("simBadge").style.display = "inline-block";
+  }
+
+  document.getElementById("headerSub").textContent = `Polymarket Bot v10 · ${state.trade_mode}`;
+
+  // Авто-выбор стороны из URL
+  const autoSide = params.get("side");
+  if (autoSide === "YES" || autoSide === "NO") {
+    setSide(autoSide);
+  }
+
+  updateSummary();
+}
+
+// ─── Выбор стороны ───────────────────────────────────────────────────────────
+function setSide(side) {
+  state.side = side;
+  document.getElementById("btnYes").className = side === "YES" ? "side-btn selected-yes" : "side-btn";
+  document.getElementById("btnNo").className  = side === "NO"  ? "side-btn selected-no"  : "side-btn";
+
+  // Авто-заполнение цены
+  const priceInput = document.getElementById("priceInput");
+  if (!priceInput.value || parseFloat(priceInput.value) === 0) {
+    const autoPrice = side === "YES" ? state.current_price_yes : state.current_price_no;
+    if (autoPrice > 0) {
+      priceInput.value = autoPrice.toFixed(2);
+      state.price = autoPrice;
+    }
+  }
+  updateSummary();
+  validate();
+}
+
+// ─── Пресеты суммы ───────────────────────────────────────────────────────────
+function setPreset(val) {
+  document.getElementById("sizeInput").value = val;
+  state.size = val;
+  document.querySelectorAll(".preset-btn").forEach(b => {
+    b.classList.toggle("active", parseFloat(b.textContent.replace("$","")) === val);
+  });
+  updateSummary();
+  validate();
+}
+
+function useMax() {
+  if (state.balance_usdc > 0) {
+    const maxUse = Math.min(state.balance_usdc * 0.95, 500).toFixed(2);
+    document.getElementById("sizeInput").value = maxUse;
+    state.size = parseFloat(maxUse);
+    updateSummary();
+    validate();
+  }
+}
+
+function onSizeChange() {
+  state.size = parseFloat(document.getElementById("sizeInput").value) || 0;
+  document.querySelectorAll(".preset-btn").forEach(b => b.classList.remove("active"));
+  updateSummary();
+  validate();
+}
+
+function onPriceChange() {
+  state.price = parseFloat(document.getElementById("priceInput").value) || 0;
+  updateSummary();
+  validate();
+}
+
+// ─── Обновление итога ────────────────────────────────────────────────────────
+function updateSummary() {
+  const side = state.side;
+  const size = state.size;
+  const price = state.price;
+
+  document.getElementById("sumSide").textContent  = side ? (side === "YES" ? "✅ YES" : "❌ NO") : "—";
+  document.getElementById("sumSide").className = "value " + (side === "YES" ? "green" : side === "NO" ? "red" : "");
+  document.getElementById("sumSize").textContent  = size > 0 ? `$${size.toFixed(2)}` : "—";
+  document.getElementById("sumPrice").textContent = price > 0 ? price.toFixed(2) : "авто";
+  document.getElementById("sumOrder").textContent = document.getElementById("orderType").value;
+
+  // Токены
+  const effPrice = price > 0 ? price : (side === "YES" ? state.current_price_yes : state.current_price_no) || 0.5;
+  const tokens = effPrice > 0 && size > 0 ? (size / effPrice).toFixed(2) : "—";
+  document.getElementById("sumTokens").textContent = tokens !== "—" ? `${tokens} токенов` : "—";
+
+  // Кнопка Submit
+  const btn = document.getElementById("submitBtn");
+  if (side && size > 0) {
+    btn.disabled = false;
+    btn.textContent = `Купить ${side} на $${size.toFixed(2)}`;
+    btn.className = "btn btn-submit " + (side === "YES" ? "yes-active" : "no-active");
+  } else if (!side) {
+    btn.disabled = true;
+    btn.textContent = "Выбери сторону";
+    btn.className = "btn btn-submit";
+  } else {
+    btn.disabled = true;
+    btn.textContent = "Введи сумму";
+    btn.className = "btn btn-submit";
+  }
+}
+
+// ─── Валидация ───────────────────────────────────────────────────────────────
+function validate() {
+  const warn = document.getElementById("warnBox");
+  const warnText = document.getElementById("warnText");
+
+  const size  = state.size;
+  const price = state.price;
+  let warnings = [];
+
+  if (size > 0 && state.balance_usdc > 0 && size > state.balance_usdc) {
+    warnings.push(`Сумма $${size} превышает баланс $${state.balance_usdc.toFixed(2)}`);
+  }
+  if (size > 500) {
+    warnings.push("Сумма > $500 — убедись что это верно");
+  }
+  if (price > 0 && (price < 0.01 || price > 0.99)) {
+    warnings.push("Цена должна быть от 0.01 до 0.99");
+  }
+
+  if (warnings.length > 0) {
+    warn.style.display = "flex";
+    warnText.textContent = warnings.join(" · ");
+  } else {
+    warn.style.display = "none";
+  }
+}
+
+// ─── Отправка ─────────────────────────────────────────────────────────────────
+function onSubmit() {
+  if (!state.side || state.size <= 0) return;
+
+  const token_id = state.side === "YES" ? state.yes_token_id : state.no_token_id;
+  const price = state.price > 0 ? state.price : 0;
+  const order_type = document.getElementById("orderType").value;
+
+  const payload = {
+    action: "MANUAL_TRADE",
+    market_id:    state.market_id,
+    market_title: state.market_title,
+    side:         state.side,
+    token_id:     token_id,
+    size_usdc:    state.size,
+    limit_price:  price,
+    order_type:   order_type,
+  };
+
+  if (tg && tg.sendData) {
+    document.getElementById("mainBody").style.display = "none";
+    document.getElementById("loadingDiv").style.display = "block";
+    setTimeout(() => {
+      tg.sendData(JSON.stringify(payload));
+    }, 300);
+  } else {
+    // Fallback для тестирования вне Telegram
+    alert("Payload:\n" + JSON.stringify(payload, null, 2));
+  }
+}
+
+function onCancel() {
+  if (tg) tg.close();
+}
+
+// ─── Запуск ───────────────────────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>
