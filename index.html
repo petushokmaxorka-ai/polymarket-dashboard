@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Polymarket Bot v10.0 — Command Center</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300..700&display=swap" rel="stylesheet">
+<!-- Telegram Mini App SDK (загружается только внутри Telegram, безопасно для браузера) -->
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+[data-theme="light"]{
+  --bg:#f5f5f7;
+  --surface:#ffffff;
+  --surface-2:#f0f0f5;
+  --surface-3:#e8e8f0;
+  --border:rgba(0,0,0,0.08);
+  --border-strong:rgba(0,0,0,0.15);
+  --text:#111827;
+  --text-muted:#6b7280;
+  --text-faint:#9ca3af;
+  --primary:#00a08a;
+  --primary-dim:rgba(0,160,138,0.10);
+  --primary-glow:rgba(0,160,138,0.20);
+  --success:#16a34a;
+  --success-dim:rgba(22,163,74,0.10);
+  --warning:#d97706;
+  --warning-dim:rgba(217,119,6,0.10);
+  --danger:#dc2626;
+  --danger-dim:rgba(220,38,38,0.10);
+  --blue:#2563eb;
+  --blue-dim:rgba(37,99,235,0.10);
+  --purple:#7c3aed;
+  --purple-dim:rgba(124,58,237,0.10);
+}
+:root,[data-theme="dark"]{
+  --bg:#0d0d0f;
+  --surface:#13131a;
+  --surface-2:#1a1a24;
+  --surface-3:#22222e;
+  --border:rgba(255,255,255,0.07);
+  --border-strong:rgba(255,255,255,0.13);
+  --text:#e8e8f0;
+  --text-muted:#7a7a8a;
+  --text-faint:#44444e;
+  --primary:#00c2a8;
+  --primary-dim:rgba(0,194,168,0.12);
+  --primary-glow:rgba(0,194,168,0.25);
+  --success:#4ade80;
+  --success-dim:rgba(74,222,128,0.1);
+  --warning:#fbbf24;
+  --warning-dim:rgba(251,191,36,0.1);
+  --danger:#f87171;
+  --danger-dim:rgba(248,113,113,0.1);
+  --purple:#a78bfa;
+  --purple-dim:rgba(167,139,250,0.1);
+  --blue:#60a5fa;
+  --blue-dim:rgba(96,165,250,0.1);
+  --radius-sm:0.375rem;
+  --radius-md:0.5rem;
+  --radius-lg:0.75rem;
+  --radius-xl:1rem;
+  --shadow-md:0 4px 16px rgba(0,0,0,0.4);
+  --shadow-lg:0 12px 40px rgba(0,0,0,0.6);
+  --font-mono:'JetBrains Mono',monospace;
+  --font-body:'Inter',sans-serif;
+}
+[data-theme="light"]{
+  --bg:#f0f0f5;
+  --surface:#ffffff;
+  --surface-2:#f5f5fa;
+  --surface-3:#eaeaf0;
+  --border:rgba(0,0,0,0.08);
+  --border-strong:rgba(0,0,0,0.15);
+  --text:#1a1a2e;
+  --text-muted:#5a5a70;
+  --text-faint:#a0a0b0;
+  --primary:#007a6a;
+  --primary-dim:rgba(0,122,106,0.1);
+  --primary-glow:rgba(0,122,106,0.2);
+  --success:#16a34a;
+  --success-dim:rgba(22,163,74,0.1);
+  --warning:#d97706;
+  --warning-dim:rgba(217,119,6,0.1);
+  --danger:#dc2626;
+  --danger-dim:rgba(220,38,38,0.1);
+  --purple:#7c3aed;
+  --purple-dim:rgba(124,58,237,0.1);
+  --blue:#2563eb;
+  --blue-dim:rgba(37,99,235,0.1);
+}
+html{-webkit-font-smoothing:antialiased;scroll-behavior:smooth}
+body{min-height:100dvh;font-family:var(--font-body);font-size:14px;color:var(--text);background:var(--bg);display:flex;flex-direction:column}
+
+/* LAYOUT */
+.app-shell{display:grid;grid-template-columns:240px 1fr;grid-template-rows:56px 1fr;min-height:100dvh}
+.topbar{grid-column:1/-1;grid-row:1;display:flex;align-items:center;gap:12px;padding:0 20px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.sidebar{grid-column:1;grid-row:2;background:var(--surface);border-right:1px solid var(--border);padding:16px 0;overflow-y:auto}
+.main-content{grid-column:2;grid-row:2;overflow-y:auto;padding:24px}
+
+/* LOGO */
+.logo{display:flex;align-items:center;gap:10px}
+.logo-icon{width:32px;height:32px;flex-shrink:0}
+.logo-text{font-family:var(--font-mono);font-weight:700;font-size:13px;color:var(--text);letter-spacing:0.05em}
+.logo-badge{font-family:var(--font-mono);font-size:10px;background:var(--primary-dim);color:var(--primary);border:1px solid var(--primary-glow);border-radius:4px;padding:2px 6px}
+
+/* TOPBAR */
+.topbar-spacer{flex:1}
+.topbar-status{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted)}
+.status-dot{width:8px;height:8px;border-radius:50%;background:var(--success);box-shadow:0 0 8px var(--success);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+.btn-theme{background:none;border:1px solid var(--border);border-radius:var(--radius-md);padding:6px;cursor:pointer;color:var(--text-muted);display:flex;align-items:center;transition:all 180ms ease}
+.btn-theme:hover{border-color:var(--border-strong);color:var(--text)}
+
+/* SIDEBAR NAV */
+.nav-section-title{font-size:10px;font-weight:600;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.08em;padding:8px 16px 4px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 16px;font-size:13px;color:var(--text-muted);cursor:pointer;border-left:2px solid transparent;transition:all 180ms ease;text-decoration:none}
+.nav-item:hover{color:var(--text);background:var(--primary-dim)}
+.nav-item.active{color:var(--primary);background:var(--primary-dim);border-left-color:var(--primary)}
+.nav-item svg{width:16px;height:16px;flex-shrink:0}
+.nav-divider{height:1px;background:var(--border);margin:8px 0}
+
+/* PAGE HEADER */
+.page-header{margin-bottom:24px}
+.page-title{font-size:20px;font-weight:600;color:var(--text);line-height:1.2}
+.page-subtitle{font-size:13px;color:var(--text-muted);margin-top:4px}
+
+/* SECTION HIDING */
+.page-section{display:none}
+.page-section.active{display:block}
+
+/* KPI GRID */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:20px}
+.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;position:relative;overflow:hidden}
+.kpi-label{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px}
+.kpi-value{font-family:var(--font-mono);font-size:22px;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums;line-height:1}
+.kpi-change{font-size:11px;margin-top:6px;display:flex;align-items:center;gap:4px}
+.kpi-change.up{color:var(--success)}
+.kpi-change.down{color:var(--danger)}
+.kpi-change.neutral{color:var(--text-muted)}
+
+/* CHARTS GRID */
+.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px}
+.chart-card.wide{grid-column:1/-1}
+.chart-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px}
+.chart-subtitle{font-size:11px;color:var(--text-muted);margin-bottom:16px}
+.chart-container{position:relative;height:200px}
+
+/* CHECKLIST */
+.checklist-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px;margin-bottom:20px}
+.checklist-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px}
+.checklist-header{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.checklist-icon{width:32px;height:32px;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.checklist-icon.red{background:var(--danger-dim);color:var(--danger)}
+.checklist-icon.orange{background:var(--warning-dim);color:var(--warning)}
+.checklist-icon.green{background:var(--success-dim);color:var(--success)}
+.checklist-icon.purple{background:var(--purple-dim);color:var(--purple)}
+.checklist-icon.blue{background:var(--blue-dim);color:var(--blue)}
+.checklist-title{font-size:14px;font-weight:600;color:var(--text)}
+.checklist-desc{font-size:11px;color:var(--text-muted);margin-top:2px}
+.check-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.check-item:last-child{border-bottom:none;padding-bottom:0}
+.check-box{width:18px;height:18px;border-radius:4px;border:1px solid var(--border-strong);background:none;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:1px;transition:all 180ms ease}
+.check-box.checked{background:var(--primary);border-color:var(--primary)}
+.check-box.checked svg{display:block}
+.check-box svg{display:none;width:11px;height:11px;color:#000}
+.check-text{font-size:12px;color:var(--text-muted);line-height:1.5;flex:1}
+.check-text strong{color:var(--text);font-weight:500;display:block;font-size:12px}
+.check-tag{display:inline-block;font-size:10px;padding:2px 6px;border-radius:var(--radius-sm);margin-top:3px;font-family:var(--font-mono)}
+.tag-urgent{background:var(--danger-dim);color:var(--danger)}
+.tag-important{background:var(--warning-dim);color:var(--warning)}
+.tag-longterm{background:var(--success-dim);color:var(--success)}
+.tag-new{background:var(--purple-dim);color:var(--purple)}
+
+/* COUNCIL TABLE */
+.council-table{width:100%;border-collapse:collapse;font-size:12px}
+.council-table th{text-align:left;padding:8px 12px;color:var(--text-muted);font-weight:500;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;border-bottom:1px solid var(--border);white-space:nowrap}
+.council-table td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--text);font-variant-numeric:tabular-nums}
+.council-table tr:last-child td{border-bottom:none}
+.council-table tr:hover td{background:var(--primary-dim)}
+.model-badge{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:11px}
+.model-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.weight-bar-wrap{width:80px;height:6px;background:var(--surface-3);border-radius:3px;overflow:hidden}
+.weight-bar{height:100%;border-radius:3px;background:var(--primary);transition:width 0.5s ease}
+.score-val{font-family:var(--font-mono);font-weight:600}
+.score-val.high{color:var(--success)}
+.score-val.mid{color:var(--warning)}
+.score-val.low{color:var(--danger)}
+
+/* SIMULATION */
+.sim-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.sim-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px}
+.sim-card.wide{grid-column:1/-1}
+.sim-controls{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px}
+.sim-input-group{display:flex;flex-direction:column;gap:4px}
+.sim-label{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em}
+.sim-input{background:var(--surface-3);border:1px solid var(--border);border-radius:var(--radius-md);padding:8px 10px;font-family:var(--font-mono);font-size:13px;color:var(--text);outline:none;width:100%}
+.sim-input:focus{border-color:var(--primary)}
+.btn-primary{background:var(--primary);color:#000;font-weight:600;font-size:13px;padding:8px 16px;border-radius:var(--radius-md);border:none;cursor:pointer;transition:opacity 180ms}
+.btn-primary:hover{opacity:0.85}
+.btn-secondary{background:var(--surface-3);color:var(--text);font-weight:500;font-size:13px;padding:8px 16px;border-radius:var(--radius-md);border:1px solid var(--border);cursor:pointer;transition:all 180ms}
+.btn-secondary:hover{border-color:var(--border-strong)}
+.sim-result{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:16px}
+.sim-metric{background:var(--surface-2);border-radius:var(--radius-md);padding:12px;text-align:center}
+.sim-metric-label{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px}
+.sim-metric-value{font-family:var(--font-mono);font-size:16px;font-weight:700}
+.sim-metric-value.positive{color:var(--success)}
+.sim-metric-value.negative{color:var(--danger)}
+.sim-metric-value.neutral{color:var(--text)}
+
+/* ANALYSIS CARDS */
+.analysis-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-bottom:20px}
+.analysis-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px}
+.analysis-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.analysis-card-title{font-size:13px;font-weight:600;color:var(--text)}
+.priority-badge{font-size:10px;padding:2px 8px;border-radius:var(--radius-full);font-weight:600}
+.priority-high{background:var(--danger-dim);color:var(--danger)}
+.priority-med{background:var(--warning-dim);color:var(--warning)}
+.priority-low{background:var(--success-dim);color:var(--success)}
+.analysis-text{font-size:12px;color:var(--text-muted);line-height:1.6}
+.analysis-impact{margin-top:12px;padding:10px;background:var(--surface-2);border-radius:var(--radius-md);font-size:11px;color:var(--text-muted)}
+.analysis-impact strong{color:var(--primary)}
+
+/* VPN STATUS */
+.vpn-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:20px}
+.vpn-node{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all 180ms ease}
+.vpn-node:hover{border-color:var(--border-strong)}
+.vpn-node.active-node{border-color:var(--primary);background:var(--primary-dim)}
+.vpn-node.blocked{opacity:0.4;cursor:not-allowed}
+.vpn-flag{font-size:20px;flex-shrink:0}
+.vpn-info{flex:1;min-width:0}
+.vpn-name{font-size:12px;font-weight:600;color:var(--text)}
+.vpn-detail{font-size:10px;color:var(--text-muted);font-family:var(--font-mono)}
+.vpn-ping{font-family:var(--font-mono);font-size:11px;text-align:right}
+.vpn-ping.fast{color:var(--success)}
+.vpn-ping.med{color:var(--warning)}
+.vpn-ping.slow{color:var(--danger)}
+.vpn-priority{font-size:9px;padding:1px 5px;border-radius:2px;margin-top:2px;display:inline-block}
+.vpn-p1{background:var(--primary-dim);color:var(--primary)}
+.vpn-p2{background:var(--blue-dim);color:var(--blue)}
+.vpn-blocked-tag{background:var(--danger-dim);color:var(--danger);font-size:9px;padding:1px 5px;border-radius:2px}
+
+/* TRADE LOG */
+.trade-log{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:20px}
+.trade-log-header{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.trade-log-title{font-size:13px;font-weight:600;color:var(--text)}
+.trade-row{display:grid;grid-template-columns:80px 1fr 80px 80px 80px 90px;gap:8px;padding:10px 16px;border-bottom:1px solid var(--border);align-items:center;font-size:12px;transition:background 180ms}
+.trade-row:hover{background:var(--surface-2)}
+.trade-row:last-child{border-bottom:none}
+.trade-header-row{background:var(--surface-2);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;font-weight:600}
+.trade-time{font-family:var(--font-mono);color:var(--text-muted);font-size:11px}
+.trade-market{color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trade-side{font-weight:600;font-size:11px;padding:2px 8px;border-radius:var(--radius-sm)}
+.side-yes{background:var(--success-dim);color:var(--success)}
+.side-no{background:var(--danger-dim);color:var(--danger)}
+.trade-amount{font-family:var(--font-mono);color:var(--text);text-align:right}
+.trade-pnl{font-family:var(--font-mono);font-weight:600;text-align:right}
+.pnl-pos{color:var(--success)}
+.pnl-neg{color:var(--danger)}
+.trade-source{font-size:10px;padding:2px 6px;border-radius:var(--radius-sm);font-family:var(--font-mono)}
+.src-ai{background:var(--purple-dim);color:var(--purple)}
+.src-arb{background:var(--blue-dim);color:var(--blue)}
+.src-whale{background:var(--warning-dim);color:var(--warning)}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--surface-3);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--border-strong)}
+
+@media(max-width:900px){
+  .app-shell{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .main-content{grid-column:1}
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+  .charts-grid{grid-template-columns:1fr}
+  .sim-grid{grid-template-columns:1fr}
+  .sim-controls{grid-template-columns:1fr 1fr}
+  .sim-result{grid-template-columns:repeat(2,1fr)}
+  .vpn-grid{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+<div class="app-shell">
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="logo">
+    <svg class="logo-icon" viewBox="0 0 32 32" fill="none" aria-label="Polymarket Bot Logo">
+      <rect width="32" height="32" rx="8" fill="rgba(0,194,168,0.15)"/>
+      <path d="M8 20 L12 12 L16 17 L20 10 L24 16" stroke="#00c2a8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="24" cy="16" r="3" fill="#00c2a8"/>
+      <path d="M8 24 L24 24" stroke="rgba(0,194,168,0.3)" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+    <span class="logo-text">PM BOT</span>
+    <span class="logo-badge">v10.0</span>
+  </div>
+  <div class="topbar-spacer"></div>
+  <div class="topbar-status">
+    <div class="status-dot"></div>
+    <span>LIVE · FI-01</span>
+  </div>
+  <button class="btn-theme" data-theme-toggle aria-label="Toggle theme">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+  </button>
+</header>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="nav-section-title">Мониторинг</div>
+  <a class="nav-item active" data-section="dashboard" href="#">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+    Дашборд
+  </a>
+  <a class="nav-item" data-section="council" href="#">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    AI Council
+  </a>
+  <a class="nav-item" data-section="trades" href="#">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+    Журнал сделок
+  </a>
+  <div class="nav-divider"></div>
+  <div class="nav-section-title">Настройка</div>
+  <a class="nav-item" data-section="checklist" href="#">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+    Чек-лист
+  </a>
+  <a class="nav-item" data-section="vpn" href="#">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    VPN / Prometheus
+  </a>
+  <div class="nav-divider"></div>
+  <div class="nav-section-title">Анализ</div>
+  <a class="nav-item" data-section="simulation" href="#">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 20h.01M7 20v-4"/><path d="M12 20v-8"/><path d="M17 20V8"/><path d="M22 4v16"/></svg>
+    Симуляция
+  </a>
+  <a class="nav-item" data-section="feedback" href="#">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1v6l3 3"/><circle cx="8" cy="8" r="7"/><path d="M4 12l2-2m4 0l2 2"/></svg>
+    Feedback Loop
+  </a>
+  <a class="nav-item" data-section="analysis" href="#">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    Что добавить
+  </a>
+</nav>
+
+<!-- MAIN CONTENT -->
+<main class="main-content">
+
+<!-- ======== DASHBOARD ======== -->
+<section class="page-section active" id="section-dashboard">
+  <div class="page-header">
+    <div class="page-title">Дашборд</div>
+    <div class="page-subtitle">Polymarket Bot v10.0 · Сегодня, 09 апреля 2026</div>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">Win Rate</div>
+      <div class="kpi-value" id="kpi-wr">—</div>
+      <div class="kpi-change up" id="kpi-wr-ch">↑ vs прошлая неделя</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Brier Score</div>
+      <div class="kpi-value" id="kpi-brier">—</div>
+      <div class="kpi-change neutral">Целевой &lt;0.20</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">P&L сегодня</div>
+      <div class="kpi-value" id="kpi-pnl">—</div>
+      <div class="kpi-change up" id="kpi-pnl-ch">Открытых: 3</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Sharpe Ratio</div>
+      <div class="kpi-value" id="kpi-sharpe">—</div>
+      <div class="kpi-change up">Целевой &gt;1.5</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Позиций открыто</div>
+      <div class="kpi-value" id="kpi-pos">—</div>
+      <div class="kpi-change neutral">Лимит: 10% каждая</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Circuit Breaker</div>
+      <div class="kpi-value" style="color:var(--success);font-size:16px">НОРМА</div>
+      <div class="kpi-change neutral">Недельный лосс: 2.1%</div>
+    </div>
+  </div>
+
+  <div class="charts-grid">
+    <div class="chart-card wide">
+      <div class="chart-title">Кривая P&L (30 дней)</div>
+      <div class="chart-subtitle">Накопленный результат · симуляция на основе Brier Score 0.18</div>
+      <div class="chart-container"><canvas id="pnl-chart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Распределение сигналов по источнику</div>
+      <div class="chart-subtitle">AI Council vs Arbitrage vs Whale</div>
+      <div class="chart-container"><canvas id="source-chart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Win Rate по категориям рынков</div>
+      <div class="chart-subtitle">Выборы / Крипто / Макро / Спорт</div>
+      <div class="chart-container"><canvas id="category-chart"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<!-- ======== AI COUNCIL ======== -->
+<section class="page-section" id="section-council">
+  <div class="page-header">
+    <div class="page-title">AI Council</div>
+    <div class="page-subtitle">6 моделей · взвешенный консенсус · обновление весов каждые 7 дней</div>
+  </div>
+  <div class="chart-card" style="margin-bottom:16px">
+    <div class="chart-title">Точность моделей (Brier Score, 30 дней)</div>
+    <div class="chart-subtitle">Чем ниже — тем лучше · калибровка на реальных рынках</div>
+    <div class="chart-container" style="height:160px"><canvas id="brier-chart"></canvas></div>
+  </div>
+  <div class="chart-card">
+    <div class="chart-title">Таблица весов Council</div>
+    <div class="chart-subtitle">Вес обновляется автоматически по точности за 30 сделок</div>
+    <table class="council-table" style="margin-top:8px">
+      <thead>
+        <tr>
+          <th>Модель</th>
+          <th>Персонаж</th>
+          <th>Роль</th>
+          <th>Brier (30д)</th>
+          <th>Win Rate</th>
+          <th>Текущий вес</th>
+          <th>Статус</th>
+        </tr>
+      </thead>
+      <tbody id="council-tbody"></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ======== TRADE LOG ======== -->
+<section class="page-section" id="section-trades">
+  <div class="page-header">
+    <div class="page-title">Журнал сделок</div>
+    <div class="page-subtitle">Trade Logger · JSON history · последние 10 сделок</div>
+  </div>
+  <div class="trade-log">
+    <div class="trade-log-header">
+      <div class="trade-log-title">Последние сделки</div>
+      <div style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono)">10 записей</div>
+    </div>
+    <div class="trade-row trade-header-row">
+      <div>Время</div><div>Рынок</div><div>Позиция</div><div>Сумма</div><div>P&L</div><div>Источник</div>
+    </div>
+    <div id="trade-log-body"></div>
+  </div>
+</section>
+
+<!-- ======== CHECKLIST ======== -->
+<section class="page-section" id="section-checklist">
+  <div class="page-header">
+    <div class="page-title">Чек-лист готовности</div>
+    <div class="page-subtitle">Feedback Loop + Retro Analysis · всё что нужно реализовать</div>
+  </div>
+
+  <div id="checklist-progress" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;margin-bottom:20px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <span style="font-size:13px;font-weight:600;color:var(--text)">Прогресс</span>
+      <span id="progress-label" style="font-family:var(--font-mono);font-size:13px;color:var(--primary)">0 / 0</span>
+    </div>
+    <div style="height:6px;background:var(--surface-3);border-radius:3px;overflow:hidden">
+      <div id="progress-bar" style="height:100%;background:var(--primary);border-radius:3px;width:0%;transition:width 0.4s ease"></div>
+    </div>
+  </div>
+
+  <div class="checklist-grid" id="checklist-container"></div>
+</section>
+
+<!-- ======== VPN ======== -->
+<section class="page-section" id="section-vpn">
+  <div class="page-header">
+    <div class="page-title">VPN / Prometheus</div>
+    <div class="page-subtitle">Приоритет: Финляндия → Германия → Нидерланды → Турция → Россия · заблокированы: Франция, США</div>
+  </div>
+
+  <div style="background:var(--primary-dim);border:1px solid var(--primary-glow);border-radius:var(--radius-lg);padding:14px 16px;margin-bottom:20px;font-size:12px;color:var(--primary)">
+    🟢 Активный узел: <strong style="font-family:var(--font-mono)">FI-01 (XHTTP)</strong> · Пинг: 22ms · Polymarket: OK
+  </div>
+
+  <div class="vpn-grid" id="vpn-grid"></div>
+</section>
+
+<!-- ======== SIMULATION ======== -->
+<section class="page-section" id="section-simulation">
+  <div class="page-header">
+    <div class="page-title">Monte Carlo Симуляция</div>
+    <div class="page-subtitle">Ретро-анализ + прогноз доходности · на основе текущих параметров бота</div>
+  </div>
+
+  <div class="sim-grid">
+    <div class="sim-card wide">
+      <div class="chart-title" style="margin-bottom:4px">Параметры симуляции</div>
+      <div class="chart-subtitle" style="margin-bottom:16px">Введи свои данные для расчёта</div>
+      <div class="sim-controls">
+        <div class="sim-input-group">
+          <label class="sim-label">Стартовый депозит ($)</label>
+          <input class="sim-input" id="sim-deposit" type="number" value="1000">
+        </div>
+        <div class="sim-input-group">
+          <label class="sim-label">Win Rate (%)</label>
+          <input class="sim-input" id="sim-wr" type="number" value="62">
+        </div>
+        <div class="sim-input-group">
+          <label class="sim-label">Avg ROI на сделку (%)</label>
+          <input class="sim-input" id="sim-roi" type="number" value="8">
+        </div>
+        <div class="sim-input-group">
+          <label class="sim-label">Размер позиции (%)</label>
+          <input class="sim-input" id="sim-pos-size" type="number" value="5">
+        </div>
+        <div class="sim-input-group">
+          <label class="sim-label">Сделок в день</label>
+          <input class="sim-input" id="sim-trades-day" type="number" value="4">
+        </div>
+        <div class="sim-input-group">
+          <label class="sim-label">Дней</label>
+          <input class="sim-input" id="sim-days" type="number" value="30">
+        </div>
+      </div>
+      <div style="display:flex;gap:10px">
+        <button class="btn-primary" onclick="runSimulation()">Запустить симуляцию</button>
+        <button class="btn-secondary" onclick="resetSimulation()">Сброс</button>
+      </div>
+      <div class="sim-result" id="sim-result" style="display:none"></div>
+    </div>
+    <div class="sim-card wide">
+      <div class="chart-title">Траектории капитала (1000 симуляций)</div>
+      <div class="chart-subtitle">Зелёная — медиана · Красная — 5-й перцентиль · Синяя — 95-й перцентиль</div>
+      <div class="chart-container" style="height:260px"><canvas id="monte-chart"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<!-- ======== ANALYSIS ======== -->
+<!-- ======== FEEDBACK LOOP ======== -->
+<section class="page-section" id="section-feedback">
+  <div class="page-header">
+    <div class="page-title">Feedback Loop</div>
+    <div class="page-subtitle">Brier Score · авто-пересчёт весов · /stats /report /retro</div>
+  </div>
+
+  <!-- Карточки команд -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-bottom:20px">
+    <div class="chart-card">
+      <div class="chart-title">📊 /stats</div>
+      <div class="chart-subtitle">Точность, Brier Score и текущий вес каждой модели</div>
+      <div style="margin-top:12px;font-family:var(--font-mono);font-size:12px;color:var(--text-muted)">
+        Мин. 10 завершённых сделок для расчёта
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">📈 /report</div>
+      <div class="chart-subtitle">Недельный отчёт AI Council — сводка по всем моделям</div>
+      <div style="margin-top:12px;font-family:var(--font-mono);font-size:12px;color:var(--text-muted)">
+        Пересчёт весов каждые 10 сделок
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">🔍 /retro [days]</div>
+      <div class="chart-subtitle">Ретро-анализ закрытых рынков через реальные AI-клиенты</div>
+      <div style="margin-top:12px;font-family:var(--font-mono);font-size:12px;color:var(--text-muted)">
+        По умолчанию: последние 7 дней
+      </div>
+    </div>
+  </div>
+
+  <!-- Таблица диапазонов весов -->
+  <div class="chart-card" style="margin-bottom:16px">
+    <div class="chart-title">Диапазоны весов моделей</div>
+    <div class="chart-subtitle">Автоматически обновляются по Brier Score · диапазон 0.5 — 2.0</div>
+    <table class="council-table" style="margin-top:12px">
+      <thead>
+        <tr>
+          <th>Персонаж</th>
+          <th>Модель</th>
+          <th>Вес по умолчанию</th>
+          <th>Диапазон</th>
+          <th>Роль в консилиуме</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><b>Нейт Силвер</b></td><td style="color:var(--text-muted)">Claude</td><td style="font-family:var(--font-mono)">1.5</td><td style="font-family:var(--font-mono)">0.5 – 2.0</td><td style="color:var(--text-muted)">Ведущий консилиума</td></tr>
+        <tr><td><b>Майкл Бьюрри</b></td><td style="color:var(--text-muted)">Gemini</td><td style="font-family:var(--font-mono)">1.4</td><td style="font-family:var(--font-mono)">0.5 – 2.0</td><td style="color:var(--text-muted)">Риск-менеджер (veto)</td></tr>
+        <tr><td><b>Джордж Сорос</b></td><td style="color:var(--text-muted)">GPT-4o</td><td style="font-family:var(--font-mono)">1.3</td><td style="font-family:var(--font-mono)">0.5 – 2.0</td><td style="color:var(--text-muted)">Рефлексивность рынка</td></tr>
+        <tr><td><b>Ren Tech Quant</b></td><td style="color:var(--text-muted)">Kimi K2</td><td style="font-family:var(--font-mono)">1.3</td><td style="font-family:var(--font-mono)">0.5 – 2.0</td><td style="color:var(--text-muted)">Ончейн-математика</td></tr>
+        <tr><td><b>Карл Роув</b></td><td style="color:var(--text-muted)">Perplexity</td><td style="font-family:var(--font-mono)">1.2</td><td style="font-family:var(--font-mono)">0.5 – 2.0</td><td style="color:var(--text-muted)">Макро / новости</td></tr>
+        <tr><td><b>Нассим Талеб</b></td><td style="color:var(--text-muted)">Grok</td><td style="font-family:var(--font-mono)">0.8</td><td style="font-family:var(--font-mono)">0.5 – 2.0</td><td style="color:var(--text-muted)">Адвокат дьявола</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Правила пересчёта -->
+  <div class="chart-card">
+    <div class="chart-title">Правила консенсуса и пересчёта</div>
+    <div class="chart-subtitle">Логика принятия решений Feedback Loop</div>
+    <div style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div style="padding:12px;background:var(--primary-dim);border-radius:8px;border:1px solid var(--border)">
+        <div style="font-size:11px;font-weight:600;color:var(--primary);margin-bottom:6px">CONSENSUS_THRESHOLD</div>
+        <div style="font-family:var(--font-mono);font-size:13px;color:var(--text)">≥ 0.65</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Минимум для входа в позицию</div>
+      </div>
+      <div style="padding:12px;background:var(--primary-dim);border-radius:8px;border:1px solid var(--border)">
+        <div style="font-size:11px;font-weight:600;color:var(--primary);margin-bottom:6px">CONFIDENCE_THRESHOLD</div>
+        <div style="font-family:var(--font-mono);font-size:13px;color:var(--text)">≥ 0.60</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Минимум уверенности AI</div>
+      </div>
+      <div style="padding:12px;background:rgba(239,68,68,0.08);border-radius:8px;border:1px solid rgba(239,68,68,0.2)">
+        <div style="font-size:11px;font-weight:600;color:#ef4444;margin-bottom:6px">Veto Бьюрри (Gemini)</div>
+        <div style="font-family:var(--font-mono);font-size:13px;color:var(--text)">prob &lt; 0.30 → SKIP</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Риск-менеджер блокирует сделку</div>
+      </div>
+      <div style="padding:12px;background:rgba(239,68,68,0.08);border-radius:8px;border:1px solid rgba(239,68,68,0.2)">
+        <div style="font-size:11px;font-weight:600;color:#ef4444;margin-bottom:6px">Double Dissent</div>
+        <div style="font-family:var(--font-mono);font-size:13px;color:var(--text)">Grok + Claude → SKIP</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Двойное несогласие блокирует</div>
+      </div>
+    </div>
+    <div style="margin-top:12px;padding:10px;background:var(--surface-2,rgba(255,255,255,0.03));border-radius:6px;font-size:11px;color:var(--text-muted)">
+      <b style="color:var(--text)">MIN_TRADES_FOR_RECALC = 10</b> · веса пересчитываются после каждых 10 завершённых сделок · данные хранятся в <code style="font-family:var(--font-mono)">feedback_data.json</code>
+    </div>
+  </div>
+</section>
+
+<section class="page-section" id="section-analysis">
+  <div class="page-header">
+    <div class="page-title">Что ещё добавить</div>
+    <div class="page-subtitle">Анализ архитектуры v10.0 · новые идеи и улучшения</div>
+  </div>
+  <div class="analysis-grid" id="analysis-container"></div>
+</section>
+
+</main>
+</div>
+
+<script>
+// THEME TOGGLE
+(function(){
+  const t=document.querySelector('[data-theme-toggle]'),r=document.documentElement;
+  let d=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';
+  r.setAttribute('data-theme',d);
+  if(t) t.addEventListener('click',()=>{
+    d=d==='dark'?'light':'dark';
+    r.setAttribute('data-theme',d);
+    t.innerHTML=d==='dark'
+      ?'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>'
+      :'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>';
+  });
+})();
+
+// NAV
+document.querySelectorAll('.nav-item[data-section]').forEach(el=>{
+  el.addEventListener('click',e=>{
+    e.preventDefault();
+    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+    document.querySelectorAll('.page-section').forEach(s=>s.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('section-'+el.dataset.section)?.classList.add('active');
+  });
+});
+
+// CHART COLORS
+const C = {
+  primary:'rgba(0,194,168,1)',
+  primaryDim:'rgba(0,194,168,0.15)',
+  primaryFill:'rgba(0,194,168,0.08)',
+  success:'rgba(74,222,128,1)',
+  successDim:'rgba(74,222,128,0.15)',
+  warning:'rgba(251,191,36,1)',
+  warningDim:'rgba(251,191,36,0.15)',
+  danger:'rgba(248,113,113,1)',
+  dangerDim:'rgba(248,113,113,0.15)',
+  purple:'rgba(167,139,250,1)',
+  blue:'rgba(96,165,250,1)',
+  grid:'rgba(255,255,255,0.05)',
+  tick:'rgba(255,255,255,0.3)',
+};
+const baseOpts = {
+  responsive:true, maintainAspectRatio:false,
+  plugins:{legend:{labels:{color:C.tick,font:{size:11,family:'Inter'}}}},
+  scales:{
+    x:{grid:{color:C.grid},ticks:{color:C.tick,font:{size:10}}},
+    y:{grid:{color:C.grid},ticks:{color:C.tick,font:{size:10}}}
+  }
+};
+
+// P&L CHART
+const pnlDays = Array.from({length:30},(_,i)=>`${i+1} апр`);
+const pnlData = [0];
+for(let i=1;i<30;i++){pnlData.push(+(pnlData[i-1]+(Math.random()>0.38?Math.random()*12:-Math.random()*6)).toFixed(1))}
+new Chart(document.getElementById('pnl-chart'),{
+  type:'line',
+  data:{labels:pnlDays,datasets:[{label:'P&L %',data:pnlData,borderColor:C.primary,backgroundColor:C.primaryFill,fill:true,tension:0.4,pointRadius:0,borderWidth:2}]},
+  options:{...baseOpts,plugins:{...baseOpts.plugins,legend:{display:false}}}
+});
+
+// SOURCE PIE
+new Chart(document.getElementById('source-chart'),{
+  type:'doughnut',
+  data:{
+    labels:['AI Council','Arbitrage','Whale Tracker','Copy Trading'],
+    datasets:[{data:[52,23,15,10],backgroundColor:[C.primary,C.blue,C.warning,C.purple],borderWidth:0,hoverOffset:6}]
+  },
+  options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{position:'right',labels:{color:C.tick,font:{size:11},boxWidth:10}}}}
+});
+
+// CATEGORY BAR
+new Chart(document.getElementById('category-chart'),{
+  type:'bar',
+  data:{
+    labels:['Выборы','Крипто','Макро','Спорт','Наука'],
+    datasets:[{label:'Win Rate %',data:[71,58,64,55,67],backgroundColor:[C.primary,C.blue,C.purple,C.warning,C.success],borderRadius:4}]
+  },
+  options:{...baseOpts,plugins:{legend:{display:false}},scales:{...baseOpts.scales,y:{...baseOpts.scales.y,min:40,max:85}}}
+});
+
+// BRIER CHART
+const models = [
+  {name:'Claude',  persona:'Нейт Силвер',  role:'Ведущий консилиума',      brier:0.18,wr:67,weight:1.5,color:C.blue},
+  {name:'Gemini',  persona:'Майкл Бьюрри', role:'Риск-менеджер (veto)',     brier:0.17,wr:68,weight:1.4,color:C.warning},
+  {name:'GPT-4o',  persona:'Джордж Сорос', role:'Рефлексивность рынка',     brier:0.19,wr:65,weight:1.3,color:C.primary},
+  {name:'Kimi K2', persona:'Ren Tech Quant',role:'Ончейн-математика',       brier:0.20,wr:64,weight:1.3,color:C.danger},
+  {name:'Perplexity',persona:'Карл Роув',  role:'Макро / новости / политика',brier:0.22,wr:62,weight:1.2,color:C.purple},
+  {name:'Grok',    persona:'Нассим Талеб', role:'Адвокат дьявола',          brier:0.27,wr:56,weight:0.8,color:C.success},
+];
+new Chart(document.getElementById('brier-chart'),{
+  type:'bar',
+  data:{
+    labels:models.map(m=>m.name+' ('+m.persona+')'),
+    datasets:[{label:'Brier Score',data:models.map(m=>m.brier),backgroundColor:models.map(m=>m.color.replace('1)','0.7)')),borderRadius:4,borderSkipped:false}]
+  },
+  options:{...baseOpts,indexAxis:'y',plugins:{legend:{display:false}},scales:{...baseOpts.scales,x:{...baseOpts.scales.x,min:0,max:0.35}}}
+});
+
+// COUNCIL TABLE
+const tbody = document.getElementById('council-tbody');
+models.forEach(m=>{
+  const row = document.createElement('tr');
+  const scoreClass = m.brier<0.20?'high':m.brier<0.25?'mid':'low';
+  const pct = Math.round((m.weight/2.0)*100);
+  row.innerHTML=`
+    <td><div class="model-badge"><div class="model-dot" style="background:${m.color}"></div>${m.name}</div></td>
+    <td style="color:var(--text);font-weight:500">${m.persona}</td>
+    <td style="color:var(--text-muted);font-size:11px">${m.role}</td>
+    <td><span class="score-val ${scoreClass}">${m.brier}</span></td>
+    <td style="font-family:var(--font-mono)">${m.wr}%</td>
+    <td><div style="display:flex;align-items:center;gap:8px"><div class="weight-bar-wrap"><div class="weight-bar" style="width:${pct}%"></div></div><span style="font-family:var(--font-mono);font-size:11px">${m.weight}</span></div></td>
+    <td><span style="font-size:10px;padding:2px 8px;border-radius:4px;background:var(--success-dim);color:var(--success)">ACTIVE</span></td>`;
+  tbody.appendChild(row);
+});
+
+// TRADE LOG
+const trades=[
+  {t:'11:43',market:'Trump выиграет 2028?',side:'YES',amt:50,pnl:+8.4,src:'ai'},
+  {t:'10:21',market:'BTC >100k к маю?',side:'NO',amt:35,pnl:-4.2,src:'arb'},
+  {t:'09:55',market:'Fed снизит ставку в июне?',side:'YES',amt:60,pnl:+12.1,src:'whale'},
+  {t:'09:12',market:'Nvidia $1000 к лету?',side:'NO',amt:40,pnl:+5.8,src:'ai'},
+  {t:'08:40',market:'Байден даст интервью CNN?',side:'YES',amt:25,pnl:-2.1,src:'ai'},
+  {t:'08:05',market:'Землетрясение в Японии?',side:'NO',amt:30,pnl:+3.3,src:'arb'},
+  {t:'07:30',market:'Apple выйдет новый iPhone?',side:'YES',amt:45,pnl:+7.9,src:'whale'},
+  {t:'06:55',market:'EUR/USD >1.10 к июню?',side:'NO',amt:55,pnl:-6.5,src:'ai'},
+  {t:'06:10',market:'FIFA ЧМ в США пройдёт?',side:'YES',amt:80,pnl:+14.2,src:'ai'},
+  {t:'05:30',market:'SpaceX Starship орбита?',side:'YES',amt:70,pnl:+9.6,src:'whale'},
+];
+const tlog = document.getElementById('trade-log-body');
+trades.forEach(t=>{
+  const d=document.createElement('div');
+  d.className='trade-row';
+  const srcLabel=t.src==='ai'?'AI Council':t.src==='arb'?'Arbitrage':'Whale';
+  const srcClass=t.src==='ai'?'src-ai':t.src==='arb'?'src-arb':'src-whale';
+  d.innerHTML=`
+    <div class="trade-time">${t.t}</div>
+    <div class="trade-market">${t.market}</div>
+    <div><span class="trade-side side-${t.side.toLowerCase()}">${t.side}</span></div>
+    <div class="trade-amount">$${t.amt}</div>
+    <div class="trade-pnl ${t.pnl>=0?'pnl-pos':'pnl-neg'}">${t.pnl>=0?'+':''}$${Math.abs(t.pnl).toFixed(1)}</div>
+    <div><span class="trade-source ${srcClass}">${srcLabel}</span></div>`;
+  tlog.appendChild(d);
+});
+
+// KPI ANIMATE
+function animateKPI(id,target,suffix='',decimals=0){
+  const el=document.getElementById(id);
+  if(!el) return;
+  let start=0,dur=800,t0=null;
+  function step(ts){
+    if(!t0) t0=ts;
+    const p=Math.min((ts-t0)/dur,1);
+    const val=start+(target-start)*p;
+    el.textContent=(decimals?val.toFixed(decimals):Math.round(val))+suffix;
+    if(p<1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+setTimeout(()=>{
+  animateKPI('kpi-wr',62,'%');
+  animateKPI('kpi-brier',0.19,'',2);
+  animateKPI('kpi-pnl',48.6,'$',1);
+  animateKPI('kpi-sharpe',1.87,'',2);
+  animateKPI('kpi-pos',3,'');
+},300);
+
+// VPN
+const vpnNodes=[
+  {flag:'🇫🇮',name:'Финляндия FI-01',detail:'XHTTP · 443',ping:22,pingClass:'fast',p:'p1',label:'Приоритет 1',active:true},
+  {flag:'🇫🇮',name:'Финляндия FI-02',detail:'XHTTP · 443',ping:24,pingClass:'fast',p:'p1',label:'Приоритет 1'},
+  {flag:'🇫🇮',name:'Финляндия FI-03',detail:'TCP · 443',ping:27,pingClass:'fast',p:'p1',label:'Приоритет 1'},
+  {flag:'🇩🇪',name:'Германия DE-01',detail:'XHTTP · 443',ping:41,pingClass:'fast',p:'p2',label:'Приоритет 2'},
+  {flag:'🇩🇪',name:'Германия DE-02',detail:'TCP · 443',ping:44,pingClass:'fast',p:'p2',label:'Приоритет 2'},
+  {flag:'🇳🇱',name:'Нидерланды NL-01',detail:'XHTTP · 443',ping:52,pingClass:'med',p:'p2',label:'Приоритет 2'},
+  {flag:'🇦🇹',name:'Австрия AT-01',detail:'TCP · 443',ping:65,pingClass:'med',p:'p2',label:'Приоритет 2'},
+  {flag:'🇰🇷',name:'Южная Корея KR-01',detail:'XHTTP · 443',ping:120,pingClass:'slow',p:'p2',label:'Приоритет 2'},
+  {flag:'🇹🇷',name:'Турция TR-01',detail:'TCP · 443',ping:88,pingClass:'med',p:'p2',label:'Приоритет 2'},
+  {flag:'🇷🇺',name:'Россия RU-01',detail:'TCP · 443',ping:35,pingClass:'fast',p:'p2',label:'Резерв'},
+  {flag:'🇫🇷',name:'Франция FR-01',detail:'XHTTP · 443',ping:null,pingClass:'',p:'',label:'',blocked:true},
+  {flag:'🇺🇸',name:'США US-01',detail:'XHTTP · 443',ping:null,pingClass:'',p:'',label:'',blocked:true},
+];
+const vgrid=document.getElementById('vpn-grid');
+vpnNodes.forEach(n=>{
+  const d=document.createElement('div');
+  d.className='vpn-node'+(n.active?' active-node':'')+(n.blocked?' blocked':'');
+  d.innerHTML=`
+    <div class="vpn-flag">${n.flag}</div>
+    <div class="vpn-info">
+      <div class="vpn-name">${n.name}</div>
+      <div class="vpn-detail">${n.detail}</div>
+      ${n.p?`<span class="vpn-priority vpn-${n.p}">${n.label}</span>`:''}
+      ${n.blocked?`<span class="vpn-blocked-tag">BLOCKED</span>`:''}
+    </div>
+    ${n.ping?`<div class="vpn-ping ${n.pingClass}">${n.ping}ms</div>`:''}`;
+  vgrid.appendChild(d);
+});
+
+// CHECKLIST
+const checklistData=[
+  {
+    icon:'red',title:'СРОЧНО',desc:'Влияет прямо сейчас',
+    items:[
+      {text:'Проверить WS-подписку на стакан Polymarket (без лагов)','tag':'urgent','done':false},
+      {text:'Проверить: переключение VPN не рвёт WS-подписку','tag':'urgent','done':false},
+      {text:'Health-check WS: пинг каждые N сек, авто-reconnect при обрыве','tag':'urgent','done':false},
+      {text:'Position Limit 3–5% депозита на один рынок (POSITION_SIZE_MAX_PCT=5)','tag':'urgent','done':true},
+      {text:'Лимит суммарной экспозиции по теме: 20–25% капитала (TOPIC_EXPOSURE_MAX_PCT=22)','tag':'urgent','done':true},
+      {text:'Whale Tracker: 3 кита по историческому профиту и ликвидности','tag':'urgent','done':false},
+      {text:'Whale limit: не более 15% капитала на whale-сигналы (WHALE_MAX_EXPOSURE_PCT=15)','tag':'urgent','done':true},
+    ]
+  },
+  {
+    icon:'orange',title:'Feedback Loop',desc:'Логирование + пересчёт весов',
+    items:[
+      {text:'Trade Logger: source, model_id, market_category, p_pred, stake, outcome (реализован trade_logger.py)','tag':'important','done':true},
+      {text:'JSONL-хранение истории — logs/trades.jsonl','tag':'important','done':true},
+      {text:'Brier Score как основная метрика моделей AI Council','tag':'important','done':true},
+      {text:'Пересчёт весов: Brier < 0.20 → 1.8, 0.20–0.25 → 1.4, > 0.25 → 0.8','tag':'important','done':true},
+      {text:'Асинхронный Council: 6 LLM параллельно, таймаут, вес=0 при неответе','tag':'important','done':true},
+      {text:'/stats /report /retro /corr — Telegram-команды','tag':'important','done':true},
+    ]
+  },
+  {
+    icon:'blue',title:'Monte Carlo Risk Layer',desc:'n_paths=5000 · Карта риска · decide_position()',
+    items:[
+      {text:'monte_carlo.py: simulate_path, monte_carlo_block, build_risk_map','tag':'important','done':true},
+      {text:'n_paths = 5000 траекторий (офлайн-калибровка)','tag':'important','done':true},
+      {text:'decide_position(): ruin_prob > 15% → блок, avg_dd > 30% → режем вдвое','tag':'important','done':true},
+      {text:'risk_map.json: category × bucket × position_pct × horizon','tag':'important','done':true},
+      {text:'/riskmap [category] [p] [pct] [days] — Telegram-команда','tag':'important','done':true},
+      {text:'Перекалибровка каждые 1000–2000 сделок или при просадке','tag':'longterm','done':false},
+    ]
+  },
+  {
+    icon:'orange',title:'Retro Analysis',desc:'История сделок → обучение',
+    items:[
+      {text:'retro_analyzer.py: ask_model_retro → реальные AI-клиенты','tag':'important','done':true},
+      {text:'/retro [days] — ретро-анализ закрытых рынков','tag':'important','done':true},
+      {text:'analyze_portfolio_correlations() + /corr команда','tag':'important','done':true},
+    ]
+  },
+  {
+    icon:'green',title:'Долгосрочно',desc:'Масштабирование системы',
+    items:[
+      {text:'News APIs (Reuters/AP) как Layer 1 — заголовки + sentiment для Council','tag':'longterm','done':false},
+      {text:'Circuit Breaker cooldown 2–4 часа (CB_COOLDOWN_HOURS_AFTER_TRIGGER=3)','tag':'longterm','done':true},
+      {text:'Калибровка Brier/Win Rate по категориям (выборы ≥65%, войны ≥72%)','tag':'longterm','done':false},
+      {text:'Ensemble Weighting по категориям: weight_model_category[model][cat]','tag':'longterm','done':false},
+    ]
+  },
+  {
+    icon:'purple',title:'Идеи — Что добавить (8 пунктов)',desc:'Sentiment · Liquidity · Bayesian · Scaling · Correlation · Time Decay · Auto-report · VPN',
+    items:[
+      {text:'3.1 Sentiment Score API: Reddit/Twitter/Telegram → числовой sentiment','tag':'new','done':false},
+      {text:'3.2 Liquidity Filter: мин. объём $10k (LIQUIDITY_FILTER_MIN_USD реализован)','tag':'new','done':true},
+      {text:'3.3 Ensemble Weighting по категориям (weight_model_category[model][cat])','tag':'new','done':false},
+      {text:'3.4 Bayesian Update при выходе новости → пересчёт p_pred по Байесу','tag':'new','done':false},
+      {text:'3.5 Position Scaling: >80%→8%, 65-80%→5%, <65%→2% (реализовано)','tag':'new','done':true},
+      {text:'3.6 Correlation Matrix: кластеры рынков, лимит риска по кластеру','tag':'new','done':false},
+      {text:'3.7 Time Decay: дальний ≥30д / средний 1-4нед / короткий 1-3д — разные режимы','tag':'new','done':false},
+      {text:'3.8 Auto-report в Telegram: P&L, Brier, Win Rate, Sharpe, топ-3 сделки','tag':'new','done':false},
+      {text:'Auto-fallback VPN: FI → DE → NL → TR (реализовано в xray_manager.py)','tag':'important','done':true},
+      {text:'Telegram-алёрт при переключении VPN','tag':'important','done':false},
+    ]
+  },
+];
+const tagMap={urgent:'tag-urgent',important:'tag-important',longterm:'tag-longterm',new:'tag-new',done:'tag-important',idea:'tag-new'};
+const tagText={urgent:'СРОЧНО',important:'ВАЖНО',longterm:'ДОЛГО',new:'НОВОЕ',done:'ГОТОВО',idea:'ИДЕЯ'};
+const container=document.getElementById('checklist-container');
+let totalItems=0,checkedItems=0;
+checklistData.forEach(section=>{
+  const card=document.createElement('div');
+  card.className='checklist-card';
+  const iconSvgs={
+    red:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+    orange:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',
+    green:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>',
+    purple:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+    blue:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>',
+  };
+  let itemsHTML='';
+  section.items.forEach(item=>{
+    totalItems++;
+    const isDone = item.done === true;
+    if(isDone) checkedItems++;
+    const btnClass = isDone ? 'check-box checked' : 'check-box';
+    const textStyle = isDone ? 'text-decoration:line-through;opacity:0.6' : '';
+    itemsHTML+=`<div class="check-item">
+      <button class="${btnClass}" aria-label="Отметить" onclick="toggleCheck(this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+      </button>
+      <div class="check-text" style="${textStyle}">
+        <strong>${item.text}</strong>
+        <span class="check-tag ${tagMap[item.tag]||'tag-important'}">${tagText[item.tag]||item.tag}</span>
+      </div>
+    </div>`;
+  });
+  card.innerHTML=`
+    <div class="checklist-header">
+      <div class="checklist-icon ${section.icon}">${iconSvgs[section.icon]}</div>
+      <div><div class="checklist-title">${section.title}</div><div class="checklist-desc">${section.desc}</div></div>
+    </div>
+    ${itemsHTML}`;
+  container.appendChild(card);
+});
+const initPct=Math.round((checkedItems/totalItems)*100);
+document.getElementById('progress-bar').style.width=initPct+'%';
+document.getElementById('progress-label').textContent=`${checkedItems} / ${totalItems}`;
+
+function toggleCheck(btn){
+  const isChecked=btn.classList.toggle('checked');
+  checkedItems+=isChecked?1:-1;
+  const pct=Math.round((checkedItems/totalItems)*100);
+  document.getElementById('progress-bar').style.width=pct+'%';
+  document.getElementById('progress-label').textContent=`${checkedItems} / ${totalItems}`;
+}
+
+// SIMULATION
+let monteChart=null;
+function runSimulation(){
+  const deposit=+document.getElementById('sim-deposit').value||1000;
+  const wr=+document.getElementById('sim-wr').value/100||0.62;
+  const roi=+document.getElementById('sim-roi').value/100||0.08;
+  const posSize=+document.getElementById('sim-pos-size').value/100||0.05;
+  const tradesDay=+document.getElementById('sim-trades-day').value||4;
+  const days=+document.getElementById('sim-days').value||30;
+  const N=500, totalTrades=tradesDay*days;
+  let allPaths=[], medians=[], p5=[], p95=[];
+  for(let s=0;s<N;s++){
+    let bal=deposit, path=[deposit];
+    for(let i=0;i<totalTrades;i++){
+      const win=Math.random()<wr;
+      const size=bal*posSize;
+      bal+=win?size*roi:-size*0.5;
+      if((i+1)%tradesDay===0) path.push(+bal.toFixed(2));
+    }
+    allPaths.push(path);
+  }
+  for(let d=0;d<=days;d++){
+    const vals=allPaths.map(p=>p[d]||deposit).sort((a,b)=>a-b);
+    medians.push(vals[Math.floor(N*0.5)]);
+    p5.push(vals[Math.floor(N*0.05)]);
+    p95.push(vals[Math.floor(N*0.95)]);
+  }
+  const labels=Array.from({length:days+1},(_,i)=>`День ${i}`);
+  if(monteChart) monteChart.destroy();
+  monteChart=new Chart(document.getElementById('monte-chart'),{
+    type:'line',
+    data:{labels,datasets:[
+      {label:'95-й %',data:p95,borderColor:C.blue,borderWidth:1.5,pointRadius:0,fill:false},
+      {label:'Медиана',data:medians,borderColor:C.success,borderWidth:2.5,pointRadius:0,fill:false},
+      {label:'5-й %',data:p5,borderColor:C.danger,borderWidth:1.5,pointRadius:0,fill:false},
+    ]},
+    options:{...baseOpts,plugins:{legend:{display:true,position:'top',labels:{color:C.tick,font:{size:11},boxWidth:12}}}}
+  });
+  const finalMedian=medians[medians.length-1];
+  const finalP5=p5[p5.length-1];
+  const pnlPct=((finalMedian-deposit)/deposit*100).toFixed(1);
+  const ruin=allPaths.filter(p=>p[p.length-1]<deposit*0.5).length;
+  const ruinPct=(ruin/N*100).toFixed(1);
+  const result=document.getElementById('sim-result');
+  result.style.display='grid';
+  result.innerHTML=`
+    <div class="sim-metric"><div class="sim-metric-label">Медиана P&L</div><div class="sim-metric-value ${finalMedian>deposit?'positive':'negative'}">+${pnlPct}%</div></div>
+    <div class="sim-metric"><div class="sim-metric-label">Худший сценарий</div><div class="sim-metric-value negative">$${finalP5.toFixed(0)}</div></div>
+    <div class="sim-metric"><div class="sim-metric-label">Риск руина</div><div class="sim-metric-value ${ruinPct>10?'negative':'positive'}">${ruinPct}%</div></div>
+    <div class="sim-metric"><div class="sim-metric-label">Всего сделок</div><div class="sim-metric-value neutral">${totalTrades}</div></div>`;
+}
+
+function resetSimulation(){
+  document.getElementById('sim-deposit').value=1000;
+  document.getElementById('sim-wr').value=62;
+  document.getElementById('sim-roi').value=8;
+  document.getElementById('sim-pos-size').value=5;
+  document.getElementById('sim-trades-day').value=4;
+  document.getElementById('sim-days').value=30;
+  document.getElementById('sim-result').style.display='none';
+  if(monteChart){monteChart.destroy();monteChart=null;}
+}
+
+// ANALYSIS
+const analysisData=[
+  {title:'Sentiment Score API',priority:'high',text:'Polymarket — рынок ожиданий. Общественный сентимент опережает цену. Reddit, Twitter/X, Telegram каналы как Layer 1.5.',impact:'Edge: +5–8% к win rate на новостных рынках'},
+  {title:'Liquidity Filter',priority:'high',text:'Не торговать рынки с объёмом <$10k. Тонкий стакан — манипуляции китами, большой спред, плохое исполнение.',impact:'Снижение потерь на slippage на 30–40%'},
+  {title:'Ensemble Weighting по категориям',priority:'med',text:'GPT-4 силён в политике, Gemini в макро, Grok в крипто. Разные веса для разных категорий рынков.',impact:'Точность Council +3–5% по целевым категориям'},
+  {title:'Bayesian Update после события',priority:'med',text:'Когда выходит новость — обновлять прогноз немедленно, не ждать следующего цикла Council.',impact:'Использование информации до того как рынок её переварит'},
+  {title:'Position Scaling по уверенности',priority:'med',text:'Если Council консенсус >80% — можно брать до 8% вместо 5%. Если <65% — снизить до 2%.',impact:'Риск-взвешенный размер = лучший Sharpe'},
+  {title:'Correlation Matrix рынков',priority:'low',text:'Если открыты позиции в "Байден" и "Демократы победят" — это коррелированный риск. Фильтровать.',impact:'Реальная диверсификация вместо иллюзии'},
+  {title:'Time Decay модель',priority:'low',text:'Рынки за 1–3 дня до резолюции ведут себя иначе чем за месяц. Нужна отдельная стратегия.',impact:'Арбитраж времени → дополнительный edge'},
+  {title:'Auto-report в Telegram',priority:'low',text:'Еженедельный дайджест: топ-3 сделки, худшая сделка, Brier Score, Sharpe, изменение весов Council.',impact:'Осознанность + быстрая идентификация проблем'},
+];
+const priorityMap={high:'priority-high',med:'priority-med',low:'priority-low'};
+const priorityText={high:'ВЫСОКИЙ',med:'СРЕДНИЙ',low:'НИЗКИЙ'};
+const ac=document.getElementById('analysis-container');
+analysisData.forEach(a=>{
+  const d=document.createElement('div');
+  d.className='analysis-card';
+  d.innerHTML=`
+    <div class="analysis-card-header">
+      <div class="analysis-card-title">${a.title}</div>
+      <span class="priority-badge ${priorityMap[a.priority]}">${priorityText[a.priority]}</span>
+    </div>
+    <div class="analysis-text">${a.text}</div>
+    <div class="analysis-impact">💡 <strong>Edge:</strong> ${a.impact}</div>`;
+  ac.appendChild(d);
+});
+
+// Auto-run simulation on load
+setTimeout(runSimulation, 500);
+lucide.createIcons();
+
+
+// ══════════════════════════════════════════════════════
+//  TELEGRAM MINI APP INTEGRATION
+// ══════════════════════════════════════════════════════
+(function initTelegramWebApp() {
+  if (typeof window.Telegram === 'undefined' || !window.Telegram.WebApp) {
+    // Запущен в браузере — всё работает как обычный сайт
+    return;
+  }
+
+  const tg = window.Telegram.WebApp;
+
+  // Сигнализируем Telegram что страница готова
+  tg.ready();
+
+  // Разворачиваем на полный экран
+  tg.expand();
+
+  // Адаптируем цветовую схему под тему Telegram
+  const scheme = tg.colorScheme; // "dark" | "light"
+  document.documentElement.setAttribute('data-theme', scheme);
+
+  // Слушаем смену темы (если пользователь переключил)
+  tg.onEvent('themeChanged', () => {
+    document.documentElement.setAttribute('data-theme', tg.colorScheme);
+  });
+
+  // Кнопка «Закрыть» в нижней панели
+  if (tg.MainButton) {
+    tg.MainButton.setText('✕ Закрыть панель');
+    tg.MainButton.show();
+    tg.MainButton.onClick(() => tg.close());
+  }
+
+  // BackButton — возврат через кнопку Назад Telegram
+  if (tg.BackButton) {
+    tg.BackButton.show();
+    tg.BackButton.onClick(() => tg.close());
+  }
+
+  // Сохраняем данные инициализации (user, chat) если понадобятся
+  window._tgInitData = tg.initDataUnsafe || {};
+
+  // Отключаем правую кнопку/свайп закрытия (чтобы не мешал скролл)
+  tg.disableClosingConfirmation && tg.disableClosingConfirmation();
+
+  // Уведомляем об успешной инициализации в консоль
+  console.log('[TG Mini App] initialized | scheme:', scheme,
+    '| user:', window._tgInitData?.user?.username || 'unknown');
+})();
+
+</script>
+</body>
+</html>
