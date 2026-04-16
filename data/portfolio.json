@@ -45,12 +45,12 @@
       "entry_price": 0.4653,
       "size": 23.3395,
       "initial_value": 10.86,
-      "current_value": 15.5207,
-      "cur_price": 0.665,
+      "current_value": 15.7541,
+      "cur_price": 0.675,
       "outcome": "No",
       "slug": "will-the-us-invade-iran-before-2027",
       "condition_id": "0x5db999fad322cea2914535aae5517060c3f80ad6d8c0231cde2124a434d16846",
-      "pnl_pct": 42.9149,
+      "pnl_pct": 45.064,
       "side": "NO"
     },
     {
@@ -97,12 +97,12 @@
       "entry_price": 0.8299,
       "size": 15.6667,
       "initial_value": 13.0028,
-      "current_value": 12.6117,
-      "cur_price": 0.805,
+      "current_value": 12.455,
+      "cur_price": 0.795,
       "outcome": "No",
       "slug": "ukraine-agrees-not-to-join-nato-before-2027",
       "condition_id": "0x5caf6459052e0fcc736c368f97b5ea98e6bf264507f2e94ac8d69fcc441b1bae",
-      "pnl_pct": -3.0077,
+      "pnl_pct": -4.2129,
       "side": "NO"
     },
     {
@@ -135,5 +135,5 @@
   "positions_count": 10,
   "wallet": "0x181A9735...",
   "mode": "LIVE",
-  "_updated_at": 1776364705
+  "_updated_at": 1776365010
 }
