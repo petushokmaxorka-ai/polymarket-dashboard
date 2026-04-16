@@ -6,12 +6,12 @@
       "entry_price": 0.5799,
       "size": 34.4944,
       "initial_value": 20.0059,
-      "current_value": 21.559,
-      "cur_price": 0.625,
+      "current_value": 21.3865,
+      "cur_price": 0.62,
       "outcome": "No",
       "slug": "will-russia-capture-all-of-kostyantynivka-by",
       "condition_id": "0x627ed310dc3977b2d71d96a4f2fccd6050553f6f165efd6c29578f5678f3f863",
-      "pnl_pct": 7.7626,
+      "pnl_pct": 6.9004,
       "side": "NO"
     },
     {
@@ -19,12 +19,12 @@
       "entry_price": 0.7424,
       "size": 32.9084,
       "initial_value": 24.4323,
-      "current_value": 23.5295,
-      "cur_price": 0.715,
+      "current_value": 23.365,
+      "cur_price": 0.71,
       "outcome": "No",
       "slug": "ukraine-signs-peace-deal-with-russia-before-2027",
       "condition_id": "0x4167e22670f31e5f93d132f78108f3fae809bd15cadf78983eff096845ed1415",
-      "pnl_pct": -3.6951,
+      "pnl_pct": -4.3683,
       "side": "NO"
     },
     {
@@ -45,12 +45,12 @@
       "entry_price": 0.4653,
       "size": 23.3395,
       "initial_value": 10.86,
-      "current_value": 15.7541,
-      "cur_price": 0.675,
+      "current_value": 15.5207,
+      "cur_price": 0.665,
       "outcome": "No",
       "slug": "will-the-us-invade-iran-before-2027",
       "condition_id": "0x5db999fad322cea2914535aae5517060c3f80ad6d8c0231cde2124a434d16846",
-      "pnl_pct": 45.064,
+      "pnl_pct": 42.9149,
       "side": "NO"
     },
     {
@@ -123,17 +123,17 @@
       "entry_price": 0.8099,
       "size": 9.1728,
       "initial_value": 7.4299,
-      "current_value": 7.2465,
-      "cur_price": 0.79,
+      "current_value": 7.2006,
+      "cur_price": 0.785,
       "outcome": "No",
       "slug": "ukraine-election-held-in-2025",
       "condition_id": "0xe29c8bf245ab35d14c722503922e6086da7dcfb08f357d1e8012331573d9e633",
-      "pnl_pct": -2.4683,
+      "pnl_pct": -3.0861,
       "side": "NO"
     }
   ],
   "positions_count": 10,
   "wallet": "0x181A9735...",
   "mode": "LIVE",
-  "_updated_at": 1776358894
+  "_updated_at": 1776361538
 }
