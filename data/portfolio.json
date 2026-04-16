@@ -32,12 +32,12 @@
       "entry_price": 0.8399,
       "size": 28.5747,
       "initial_value": 24.0024,
-      "current_value": 24.1456,
-      "cur_price": 0.845,
+      "current_value": 24.2885,
+      "cur_price": 0.85,
       "outcome": "No",
       "slug": "will-ukraine-agree-to-cede-territory-to-russia-before-2027",
       "condition_id": "0x21bf9a7dae81b6bd51acae73185686ab8997b81b1401e4be10e114d472599c26",
-      "pnl_pct": 0.5961,
+      "pnl_pct": 1.1915,
       "side": "NO"
     },
     {
@@ -135,5 +135,5 @@
   "positions_count": 10,
   "wallet": "0x181A9735...",
   "mode": "LIVE",
-  "_updated_at": 1776368424
+  "_updated_at": 1776368735
 }
