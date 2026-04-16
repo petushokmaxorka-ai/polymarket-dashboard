@@ -32,12 +32,12 @@
       "entry_price": 0.8399,
       "size": 28.5747,
       "initial_value": 24.0024,
-      "current_value": 24.0027,
-      "cur_price": 0.84,
+      "current_value": 24.1456,
+      "cur_price": 0.845,
       "outcome": "No",
       "slug": "will-ukraine-agree-to-cede-territory-to-russia-before-2027",
       "condition_id": "0x21bf9a7dae81b6bd51acae73185686ab8997b81b1401e4be10e114d472599c26",
-      "pnl_pct": 0.0008,
+      "pnl_pct": 0.5961,
       "side": "NO"
     },
     {
@@ -123,17 +123,17 @@
       "entry_price": 0.8099,
       "size": 9.1728,
       "initial_value": 7.4299,
-      "current_value": 7.2006,
-      "cur_price": 0.785,
+      "current_value": 7.2465,
+      "cur_price": 0.79,
       "outcome": "No",
       "slug": "ukraine-election-held-in-2025",
       "condition_id": "0xe29c8bf245ab35d14c722503922e6086da7dcfb08f357d1e8012331573d9e633",
-      "pnl_pct": -3.0861,
+      "pnl_pct": -2.4683,
       "side": "NO"
     }
   ],
   "positions_count": 10,
   "wallet": "0x181A9735...",
   "mode": "LIVE",
-  "_updated_at": 1776368112
+  "_updated_at": 1776368424
 }
