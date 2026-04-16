@@ -571,8 +571,54 @@ function goPage(p) {
   window.scrollTo({top: 0, behavior: 'smooth'});
 }
 
-// ─── Demo данные (если нет файла) ────────────────────────────────────────────
-// Показываем пустую страницу с upload-area — данные грузятся только из CSV
+// ─── Авто-загрузка из data/trades.json (GitHub Pages) ────────────────────────
+async function autoLoadFromGitHub() {
+  try {
+    const resp = await fetch('data/trades.json?_=' + Date.now());
+    if (!resp.ok) return;  // файл ещё не создан — показываем upload-area
+    const json = await resp.json();
+    // trades.json может быть массивом или объектом {"trades": [...]}
+    const rawArr = Array.isArray(json) ? json : (json.trades || []);
+    if (rawArr.length === 0) return;
+
+    // Нормализуем формат (trades.json от бота vs CSV-формат)
+    allTrades = rawArr.map(t => ({
+      ts:              t.ts || t.timestamp || t.time || "",
+      market:          t.market_question || t.market || t.question || "",
+      market_category: t.category || t.market_category || "",
+      side:            (t.side || t.direction || "").toUpperCase(),
+      size_usd:        parseFloat(t.size_usd || t.amount || 0),
+      pnl:             parseFloat(t.pnl || 0),
+      strategy:        t.strategy_version || t.strategy || "",
+      source:          t.source || "",
+      price:           parseFloat(t.price || 0),
+      result:          t.result || "",
+    }));
+
+    // Скрываем upload-area, показываем таблицу
+    document.getElementById('uploadArea').style.display = 'none';
+    document.getElementById('filtersBlock').style.display = 'flex';
+    document.getElementById('tableSection').style.display = 'block';
+
+    // Добавляем бейджик "Живые данные"
+    const header = document.querySelector('.header-right');
+    if (header) {
+      const badge = document.createElement('span');
+      badge.style.cssText = 'font-size:11px;color:var(--green);border:1px solid var(--green);border-radius:4px;padding:2px 7px;';
+      badge.textContent = '● Живые данные';
+      header.prepend(badge);
+    }
+
+    populateFilterOptions();
+    applyFilters();
+  } catch(e) {
+    // Тихая ошибка — показываем upload-area для ручной загрузки
+    console.log('autoLoad:', e.message);
+  }
+}
+
+// Запускаем при старте
+document.addEventListener('DOMContentLoaded', autoLoadFromGitHub);
 </script>
 </body>
 </html>

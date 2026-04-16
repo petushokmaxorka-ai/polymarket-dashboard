@@ -428,10 +428,60 @@ function init() {
 
   document.getElementById("headerSub").textContent = `Polymarket Bot v10 · ${state.trade_mode}`;
 
-  // Авто-выбор стороны из URL
-  const autoSide = params.get("side");
+  // ── Авто-заполнение из URL (параметры от bot.py) ───────────────────────────
+
+  // Цена: читаем напрямую (bot.py шлёт "price")
+  const autoPrice = parseFloat(params.get("price") || "0") || 0;
+  if (autoPrice > 0) {
+    // Если p_yes/p_no не переданы — используем price как цену для нужной стороны
+    if (state.current_price_yes === 0) {
+      const autoOutcome = (params.get("outcome") || "").toUpperCase();
+      if (autoOutcome === "NO") {
+        state.current_price_no = autoPrice;
+      } else {
+        state.current_price_yes = autoPrice;
+      }
+    }
+    // Показываем цену в meta
+    if (state.current_price_yes > 0 && meta.innerHTML.indexOf("tag yes") === -1) {
+      meta.innerHTML += `<span class="tag yes">YES ${(state.current_price_yes*100).toFixed(1)}¢</span>`;
+    }
+    if (state.current_price_no > 0 && meta.innerHTML.indexOf("tag no") === -1) {
+      meta.innerHTML += `<span class="tag no">NO ${(state.current_price_no*100).toFixed(1)}¢</span>`;
+    }
+  }
+
+  // Сумма: читаем size_usd (bot.py) → заполняем поле
+  const autoSize = parseFloat(params.get("size_usd") || "0") || 0;
+  if (autoSize > 0) {
+    document.getElementById("sizeInput").value = autoSize.toFixed(0);
+    state.size = autoSize;
+    // Подсветим активный пресет если совпадает
+    document.querySelectorAll(".preset-btn").forEach(b => {
+      b.classList.toggle("active", parseFloat(b.textContent.replace("$","")) === autoSize);
+    });
+  }
+
+  // Сторона: bot.py шлёт "BUY"/"SELL" + "outcome"="Yes"/"No"
+  // trade.html ожидает "YES"/"NO"
+  let autoSide = params.get("side") || "";
+  const autoOutcome = (params.get("outcome") || "").toUpperCase();
+
+  // Конвертируем BUY/SELL → YES/NO по outcome
+  if (autoSide === "BUY" || autoSide === "SELL") {
+    // BUY Yes → YES, BUY No → NO, SELL Yes → YES (продаём Yes-токены)
+    autoSide = (autoOutcome === "NO") ? "NO" : "YES";
+  } else {
+    autoSide = autoSide.toUpperCase();
+  }
+
   if (autoSide === "YES" || autoSide === "NO") {
     setSide(autoSide);
+    // Принудительно заполняем цену в поле если она пришла
+    if (autoPrice > 0) {
+      document.getElementById("priceInput").value = autoPrice.toFixed(2);
+      state.price = autoPrice;
+    }
   }
 
   updateSummary();
