@@ -1,10 +1,10 @@
 {
   "bot_name": "Von-Vrangel",
-  "uptime_seconds": 942,
+  "uptime_seconds": 1247,
   "trade_mode": "LIVE",
   "auto_trade": true,
   "positions_open": 10,
   "ws_connected": true,
   "regime": "normal",
-  "_updated_at": 1776364399
+  "_updated_at": 1776364705
 }
