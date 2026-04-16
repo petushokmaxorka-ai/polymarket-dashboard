@@ -808,13 +808,96 @@ function animateKPI(id,target,suffix='',decimals=0){
   }
   requestAnimationFrame(step);
 }
-setTimeout(()=>{
-  animateKPI('kpi-wr',62,'%');
-  animateKPI('kpi-brier',0.19,'',2);
-  animateKPI('kpi-pnl',48.6,'$',1);
-  animateKPI('kpi-sharpe',1.87,'',2);
-  animateKPI('kpi-pos',3,'');
-},300);
+// ── Динамическая загрузка данных из data/*.json ──────────────────────────────
+const DATA_BASE = 'https://petushokmaxorka-ai.github.io/polymarket-dashboard/data';
+
+async function loadDashboardData() {
+  try {
+    const [portfolio, metrics, status, trades] = await Promise.allSettled([
+      fetch(DATA_BASE + '/portfolio.json?_=' + Date.now()).then(r => r.ok ? r.json() : null),
+      fetch(DATA_BASE + '/metrics.json?_=' + Date.now()).then(r => r.ok ? r.json() : null),
+      fetch(DATA_BASE + '/status.json?_=' + Date.now()).then(r => r.ok ? r.json() : null),
+      fetch(DATA_BASE + '/trades.json?_=' + Date.now()).then(r => r.ok ? r.json() : null),
+    ]);
+
+    const p = portfolio.value;
+    const m = metrics.value;
+    const s = status.value;
+    const t = trades.value;
+
+    // KPI — Portfolio
+    if (p && p.balance != null) {
+      animateKPI('kpi-pnl', parseFloat(p.balance), '$', 1);
+      const posCount = p.positions_count != null ? p.positions_count : (p.positions ? p.positions.length : 0);
+      animateKPI('kpi-pos', posCount, '');
+      document.getElementById('kpi-pnl-ch').textContent = 'Открытых: ' + posCount;
+    }
+
+    // KPI — Metrics
+    if (m) {
+      if (m.win_rate != null)   animateKPI('kpi-wr',     parseFloat(m.win_rate) * 100, '%');
+      if (m.brier_score != null) animateKPI('kpi-brier', parseFloat(m.brier_score), '', 2);
+      if (m.sharpe != null)     animateKPI('kpi-sharpe', parseFloat(m.sharpe), '', 2);
+    }
+
+    // Status badge
+    if (s) {
+      const modeEl = document.querySelector('[data-live-mode]');
+      if (modeEl) modeEl.textContent = s.trade_mode || 'LIVE';
+      const uptimeEl = document.getElementById('bot-uptime');
+      if (uptimeEl && s.uptime_seconds) {
+        const h = Math.floor(s.uptime_seconds / 3600);
+        const m2 = Math.floor((s.uptime_seconds % 3600) / 60);
+        uptimeEl.textContent = h + 'h ' + m2 + 'm';
+      }
+      // Circuit breaker
+      const cbEl = document.querySelector('.kpi-value[style*="var(--success)"]');
+      if (cbEl && s.circuit_breaker_tripped) {
+        cbEl.style.color = 'var(--danger)';
+        cbEl.textContent = 'СТОП';
+      }
+    }
+
+    // Trade log
+    if (t && t.trades && t.trades.length > 0) {
+      const logEl = document.getElementById('trade-log-body');
+      if (logEl) {
+        logEl.innerHTML = t.trades.slice(-20).reverse().map(tr => {
+          const side = (tr.side || '').toUpperCase();
+          const color = side === 'BUY' ? 'var(--success)' : 'var(--danger)';
+          const ts = tr.timestamp ? new Date(tr.timestamp * 1000).toLocaleTimeString('ru') : '';
+          return '<div style="display:flex;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px">'
+            + '<span style="color:' + color + ';font-weight:700;min-width:36px">' + side + '</span>'
+            + '<span style="flex:1;color:var(--text)">' + (tr.market_title || tr.title || '').slice(0,60) + '</span>'
+            + '<span style="color:var(--text-muted);font-family:var(--font-mono)">' + (tr.size_usd ? '$'+parseFloat(tr.size_usd).toFixed(0) : '') + '</span>'
+            + '<span style="color:var(--text-faint);min-width:55px;text-align:right">' + ts + '</span>'
+            + '</div>';
+        }).join('');
+      }
+    }
+
+    // Обновление времени
+    const updEl = document.getElementById('last-update-time');
+    if (updEl) updEl.textContent = new Date().toLocaleTimeString('ru');
+
+    console.log('[Dashboard] Данные загружены:', {portfolio: !!p, metrics: !!m, status: !!s, trades: !!t});
+  } catch(e) {
+    console.warn('[Dashboard] Ошибка загрузки данных:', e);
+    // Fallback к демо-данным
+    setTimeout(() => {
+      animateKPI('kpi-wr', 62, '%');
+      animateKPI('kpi-brier', 0.19, '', 2);
+      animateKPI('kpi-pnl', 48.6, '$', 1);
+      animateKPI('kpi-sharpe', 1.87, '', 2);
+      animateKPI('kpi-pos', 3, '');
+    }, 300);
+  }
+}
+
+// Запускаем загрузку через 300ms после загрузки страницы
+setTimeout(loadDashboardData, 300);
+// Авто-обновление каждые 60 секунд
+setInterval(loadDashboardData, 60000);
 
 // VPN
 const vpnNodes=[
