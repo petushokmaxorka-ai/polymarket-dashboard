@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Polymarket Bot — Trade History</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d1117;--surface:#161b22;--surface-2:#21262d;--surface-3:#2d333b;
+  --border:rgba(255,255,255,0.09);--text:#e6edf3;--text-muted:#8b949e;
+  --primary:#58a6ff;--primary-dim:rgba(88,166,255,0.12);
+  --green:#3fb950;--green-dim:rgba(63,185,80,0.13);
+  --orange:#f0883e;--orange-dim:rgba(240,136,62,0.13);
+  --red:#f85149;--red-dim:rgba(248,81,73,0.13);
+  --purple:#bc8cff;--yellow:#e3b341;
+  --radius:10px;--radius-sm:6px;
+  --font:Inter,-apple-system,sans-serif;--font-mono:'JetBrains Mono',monospace;
+}
+[data-theme="light"]{
+  --bg:#f6f8fa;--surface:#fff;--surface-2:#f0f2f5;--surface-3:#e8eaed;
+  --border:rgba(0,0,0,0.08);--text:#1f2328;--text-muted:#636c76;
+  --primary:#0969da;--primary-dim:rgba(9,105,218,0.09);
+  --green:#1a7f37;--green-dim:rgba(26,127,55,0.1);
+  --orange:#bc4c00;--red:#cf222e;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14px;line-height:1.6;min-height:100vh}
+
+/* Header */
+.header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20}
+.header-left{display:flex;align-items:center;gap:10px}
+.logo{width:32px;height:32px;background:linear-gradient(135deg,var(--primary),var(--green));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.header-title{font-size:15px;font-weight:700}
+.header-sub{font-size:11px;color:var(--text-muted)}
+.header-right{display:flex;gap:8px;align-items:center}
+.theme-btn,.upload-btn{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:5px 10px;font-size:12px;color:var(--text-muted);cursor:pointer;white-space:nowrap}
+.upload-btn{color:var(--primary);border-color:var(--primary-dim)}
+
+/* Body */
+.body{padding:20px;max-width:1100px;margin:0 auto}
+.section{margin-bottom:24px}
+.section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);margin-bottom:10px}
+
+/* Stats row */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:20px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px}
+.stat-label{font-size:11px;color:var(--text-muted);margin-bottom:4px}
+.stat-value{font-size:22px;font-weight:700;font-family:var(--font-mono)}
+.stat-sub{font-size:11px;color:var(--text-muted);margin-top:2px}
+.green{color:var(--green)}
+.red{color:var(--red)}
+.orange{color:var(--orange)}
+.purple{color:var(--purple)}
+
+/* Filters */
+.filters{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin-bottom:16px}
+.filter-group{display:flex;flex-direction:column;gap:4px;min-width:110px}
+.filter-group label{font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.filter-group input,.filter-group select{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:6px 10px;font-size:13px;color:var(--text);outline:none;width:100%}
+.filter-group input:focus,.filter-group select:focus{border-color:var(--primary)}
+.filter-group select option{background:var(--surface-2)}
+.btn-reset{background:var(--surface-3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:6px 14px;font-size:12px;color:var(--text-muted);cursor:pointer;align-self:flex-end;white-space:nowrap}
+.btn-reset:hover{border-color:var(--primary);color:var(--primary)}
+.results-count{font-size:12px;color:var(--text-muted);align-self:flex-end;margin-left:auto}
+
+/* Table */
+.table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;min-width:700px}
+thead{background:var(--surface-2)}
+th{padding:10px 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);text-align:left;white-space:nowrap;cursor:pointer;user-select:none;border-bottom:1px solid var(--border)}
+th:hover{color:var(--text)}
+th .sort-icon{margin-left:4px;opacity:.4;font-size:10px}
+th.sorted .sort-icon{opacity:1;color:var(--primary)}
+td{padding:10px 14px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tbody tr{transition:background .12s}
+tbody tr:hover{background:var(--surface-2)}
+
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.badge-yes{background:var(--green-dim);color:var(--green)}
+.badge-no{background:var(--red-dim);color:var(--red)}
+.badge-arb{background:var(--primary-dim);color:var(--primary)}
+.badge-main{background:rgba(188,140,255,.12);color:var(--purple)}
+.badge-manual{background:var(--orange-dim);color:var(--orange)}
+.badge-other{background:var(--surface-3);color:var(--text-muted)}
+
+.pnl-pos{color:var(--green);font-weight:600;font-family:var(--font-mono)}
+.pnl-neg{color:var(--red);font-weight:600;font-family:var(--font-mono)}
+.pnl-zero{color:var(--text-muted);font-family:var(--font-mono)}
+.mono{font-family:var(--font-mono);font-size:12px}
+.market-title{max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px}
+.market-title[title]{cursor:help}
+
+/* Pagination */
+.pagination{display:flex;align-items:center;gap:6px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+.page-btn{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:5px 11px;font-size:12px;color:var(--text-muted);cursor:pointer;transition:all .12s}
+.page-btn:hover{border-color:var(--primary);color:var(--primary)}
+.page-btn.active{background:var(--primary);border-color:var(--primary);color:#fff;font-weight:700}
+.page-btn:disabled{opacity:.3;cursor:default}
+.page-info{font-size:12px;color:var(--text-muted)}
+
+/* Empty / loading */
+.empty{text-align:center;padding:60px 20px;color:var(--text-muted)}
+.empty-icon{font-size:40px;margin-bottom:12px}
+.empty-title{font-size:15px;font-weight:600;margin-bottom:6px;color:var(--text)}
+.empty-sub{font-size:13px}
+
+/* Upload area */
+.upload-area{border:2px dashed var(--border);border-radius:var(--radius);padding:36px;text-align:center;color:var(--text-muted);cursor:pointer;transition:all .15s;margin-bottom:16px}
+.upload-area:hover,.upload-area.drag{border-color:var(--primary);background:var(--primary-dim);color:var(--primary)}
+.upload-area input{display:none}
+.upload-area-icon{font-size:32px;margin-bottom:8px}
+.upload-area-text{font-size:13px}
+.upload-area-sub{font-size:11px;margin-top:4px}
+
+/* Responsive */
+@media(max-width:600px){
+  .body{padding:12px}
+  .filters{gap:8px}
+  .filter-group{min-width:calc(50% - 4px)}
+  .stat-value{font-size:18px}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div class="logo">📊</div>
+    <div>
+      <div class="header-title">Trade History</div>
+      <div class="header-sub">Polymarket Bot v10</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <label class="upload-btn" style="cursor:pointer">
+      📂 Загрузить CSV
+      <input type="file" id="csvFileInput" accept=".csv" style="display:none">
+    </label>
+    <button class="theme-btn" onclick="toggleTheme()">☀ / ☾</button>
+  </div>
+</div>
+
+<div class="body">
+
+  <!-- Stats -->
+  <div class="section">
+    <div class="section-title">Сводка</div>
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">Всего сделок</div>
+        <div class="stat-value" id="stat-total">—</div>
+        <div class="stat-sub" id="stat-filtered"></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Win Rate</div>
+        <div class="stat-value green" id="stat-winrate">—</div>
+        <div class="stat-sub" id="stat-wl"></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Общий P&amp;L</div>
+        <div class="stat-value" id="stat-pnl">—</div>
+        <div class="stat-sub" id="stat-avg-pnl"></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Объём USD</div>
+        <div class="stat-value purple" id="stat-volume">—</div>
+        <div class="stat-sub" id="stat-avg-size"></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Ср. цена входа</div>
+        <div class="stat-value orange" id="stat-avgprice">—</div>
+        <div class="stat-sub">avg_price</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Upload area (shown when no data) -->
+  <div id="uploadArea" class="upload-area" onclick="document.getElementById('csvFileInput').click()">
+    <div class="upload-area-icon">📥</div>
+    <div class="upload-area-text">Перетащите trades.csv сюда или нажмите для выбора</div>
+    <div class="upload-area-sub">Экспортируйте из бота: <b>/export trades</b> → загрузите файл</div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters" id="filtersBlock" style="display:none">
+    <div class="filter-group">
+      <label>С даты</label>
+      <input type="date" id="filterDateFrom">
+    </div>
+    <div class="filter-group">
+      <label>По дату</label>
+      <input type="date" id="filterDateTo">
+    </div>
+    <div class="filter-group">
+      <label>Сторона</label>
+      <select id="filterSide">
+        <option value="">Все</option>
+        <option value="YES">YES</option>
+        <option value="NO">NO</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>Стратегия</label>
+      <select id="filterStrategy">
+        <option value="">Все</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>Категория</label>
+      <select id="filterCategory">
+        <option value="">Все</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>Источник</label>
+      <select id="filterSource">
+        <option value="">Все</option>
+      </select>
+    </div>
+    <div class="filter-group" style="min-width:160px">
+      <label>Поиск по рынку</label>
+      <input type="text" id="filterSearch" placeholder="Название рынка...">
+    </div>
+    <button class="btn-reset" onclick="resetFilters()">Сбросить</button>
+    <div class="results-count" id="resultsCount"></div>
+  </div>
+
+  <!-- Table -->
+  <div class="section" id="tableSection" style="display:none">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th onclick="sortBy('ts')"># <span class="sort-icon" id="sort-ts">▲</span></th>
+            <th onclick="sortBy('ts')">Дата <span class="sort-icon" id="sort-ts2"></span></th>
+            <th onclick="sortBy('market_title')">Рынок <span class="sort-icon" id="sort-market_title"></span></th>
+            <th onclick="sortBy('side')">Сторона <span class="sort-icon" id="sort-side"></span></th>
+            <th onclick="sortBy('size_usd')">Размер $ <span class="sort-icon" id="sort-size_usd"></span></th>
+            <th onclick="sortBy('avg_price')">Цена <span class="sort-icon" id="sort-avg_price"></span></th>
+            <th onclick="sortBy('pnl_usd')">P&amp;L $ <span class="sort-icon" id="sort-pnl_usd"></span></th>
+            <th onclick="sortBy('strategy')">Стратегия <span class="sort-icon" id="sort-strategy"></span></th>
+            <th onclick="sortBy('source')">Источник <span class="sort-icon" id="sort-source"></span></th>
+            <th onclick="sortBy('market_category')">Категория <span class="sort-icon" id="sort-market_category"></span></th>
+          </tr>
+        </thead>
+        <tbody id="tradesBody"></tbody>
+      </table>
+    </div>
+    <div class="pagination" id="pagination"></div>
+  </div>
+
+</div>
+
+<script>
+// ─── Состояние ────────────────────────────────────────────────────────────────
+let allTrades = [];
+let filtered = [];
+let sortKey = 'ts';
+let sortDir = -1; // -1=desc, 1=asc
+let currentPage = 1;
+const PAGE_SIZE = 25;
+
+// ─── Telegram WebApp ──────────────────────────────────────────────────────────
+if (window.Telegram && Telegram.WebApp) {
+  Telegram.WebApp.ready();
+  Telegram.WebApp.expand();
+}
+
+// ─── Тема ─────────────────────────────────────────────────────────────────────
+function toggleTheme() {
+  const html = document.documentElement;
+  html.dataset.theme = html.dataset.theme === 'dark' ? 'light' : 'dark';
+  try { localStorage.setItem('theme', html.dataset.theme); } catch(e){}
+}
+try {
+  const t = localStorage.getItem('theme');
+  if (t) document.documentElement.dataset.theme = t;
+} catch(e){}
+
+// ─── CSV парсер ───────────────────────────────────────────────────────────────
+function parseCSV(text) {
+  const lines = text.trim().split('\n');
+  if (lines.length < 2) return [];
+  const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+  const rows = [];
+  for (let i = 1; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (!line) continue;
+    // Простой парсер с учётом кавычек
+    const vals = [];
+    let cur = '', inQ = false;
+    for (let c of line) {
+      if (c === '"') { inQ = !inQ; }
+      else if (c === ',' && !inQ) { vals.push(cur); cur = ''; }
+      else { cur += c; }
+    }
+    vals.push(cur);
+    const row = {};
+    headers.forEach((h, idx) => { row[h] = (vals[idx] || '').trim(); });
+    rows.push(row);
+  }
+  return rows;
+}
+
+function normalizeTrades(rows) {
+  return rows.map((r, idx) => ({
+    _idx: idx,
+    ts: r.ts || r.timestamp || r.date || '',
+    market_id: r.market_id || '',
+    market_title: r.market_title || r.market || r.market_id || '—',
+    market_category: r.market_category || r.category || 'other',
+    side: (r.side || '').toUpperCase(),
+    size_usd: parseFloat(r.size_usd || r.size || 0) || 0,
+    avg_price: parseFloat(r.avg_price || r.price || 0) || 0,
+    pnl_usd: parseFloat(r.pnl_usd || r.pnl || 0) || 0,
+    strategy: r.strategy || r.strategy_name || '—',
+    source: r.source || '—',
+  }));
+}
+
+// ─── Загрузка файла ───────────────────────────────────────────────────────────
+document.getElementById('csvFileInput').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    const rows = parseCSV(ev.target.result);
+    allTrades = normalizeTrades(rows);
+    onDataLoaded();
+  };
+  reader.readAsText(file, 'UTF-8');
+});
+
+// Drag & drop
+const ua = document.getElementById('uploadArea');
+ua.addEventListener('dragover', e => { e.preventDefault(); ua.classList.add('drag'); });
+ua.addEventListener('dragleave', () => ua.classList.remove('drag'));
+ua.addEventListener('drop', e => {
+  e.preventDefault(); ua.classList.remove('drag');
+  const file = e.dataTransfer.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    allTrades = normalizeTrades(parseCSV(ev.target.result));
+    onDataLoaded();
+  };
+  reader.readAsText(file, 'UTF-8');
+});
+
+function onDataLoaded() {
+  if (allTrades.length === 0) {
+    alert('Файл пуст или не распознан.');
+    return;
+  }
+  document.getElementById('uploadArea').style.display = 'none';
+  document.getElementById('filtersBlock').style.display = 'flex';
+  document.getElementById('tableSection').style.display = 'block';
+  populateFilterOptions();
+  applyFilters();
+}
+
+// ─── Опции фильтров ───────────────────────────────────────────────────────────
+function populateFilterOptions() {
+  const strategies = [...new Set(allTrades.map(t => t.strategy).filter(Boolean))].sort();
+  const categories = [...new Set(allTrades.map(t => t.market_category).filter(Boolean))].sort();
+  const sources = [...new Set(allTrades.map(t => t.source).filter(Boolean))].sort();
+
+  fillSelect('filterStrategy', strategies);
+  fillSelect('filterCategory', categories);
+  fillSelect('filterSource', sources);
+}
+
+function fillSelect(id, values) {
+  const sel = document.getElementById(id);
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">Все</option>';
+  values.forEach(v => {
+    const opt = document.createElement('option');
+    opt.value = v; opt.textContent = v;
+    sel.appendChild(opt);
+  });
+  sel.value = cur;
+}
+
+// ─── Фильтрация ───────────────────────────────────────────────────────────────
+['filterDateFrom','filterDateTo','filterSide','filterStrategy',
+ 'filterCategory','filterSource','filterSearch'].forEach(id => {
+  document.getElementById(id).addEventListener('input', () => { currentPage = 1; applyFilters(); });
+});
+
+function applyFilters() {
+  const from = document.getElementById('filterDateFrom').value;
+  const to = document.getElementById('filterDateTo').value;
+  const side = document.getElementById('filterSide').value;
+  const strategy = document.getElementById('filterStrategy').value;
+  const category = document.getElementById('filterCategory').value;
+  const source = document.getElementById('filterSource').value;
+  const search = document.getElementById('filterSearch').value.toLowerCase();
+
+  filtered = allTrades.filter(t => {
+    const dateStr = t.ts.slice(0,10);
+    if (from && dateStr < from) return false;
+    if (to && dateStr > to) return false;
+    if (side && t.side !== side) return false;
+    if (strategy && t.strategy !== strategy) return false;
+    if (category && t.market_category !== category) return false;
+    if (source && t.source !== source) return false;
+    if (search && !t.market_title.toLowerCase().includes(search)) return false;
+    return true;
+  });
+
+  sortFiltered();
+  updateStats();
+  renderTable();
+  renderPagination();
+  document.getElementById('resultsCount').textContent =
+    filtered.length < allTrades.length
+      ? `${filtered.length} из ${allTrades.length}`
+      : `${allTrades.length} записей`;
+}
+
+function resetFilters() {
+  ['filterDateFrom','filterDateTo','filterSearch'].forEach(id => document.getElementById(id).value = '');
+  ['filterSide','filterStrategy','filterCategory','filterSource'].forEach(id => document.getElementById(id).value = '');
+  currentPage = 1;
+  applyFilters();
+}
+
+// ─── Сортировка ───────────────────────────────────────────────────────────────
+function sortBy(key) {
+  if (sortKey === key) sortDir *= -1;
+  else { sortKey = key; sortDir = -1; }
+  document.querySelectorAll('.sort-icon').forEach(el => el.textContent = '');
+  const icons = document.querySelectorAll(`[id^="sort-${key}"]`);
+  icons.forEach(el => { el.textContent = sortDir === -1 ? '▼' : '▲'; });
+  currentPage = 1;
+  sortFiltered();
+  renderTable();
+  renderPagination();
+}
+
+function sortFiltered() {
+  filtered.sort((a, b) => {
+    let va = a[sortKey] || '', vb = b[sortKey] || '';
+    if (typeof va === 'number' && typeof vb === 'number') return (va - vb) * sortDir;
+    return String(va).localeCompare(String(vb)) * sortDir;
+  });
+}
+
+// ─── Статистика ───────────────────────────────────────────────────────────────
+function updateStats() {
+  const arr = filtered;
+  const total = arr.length;
+  const withPnl = arr.filter(t => t.pnl_usd !== 0);
+  const wins = withPnl.filter(t => t.pnl_usd > 0).length;
+  const totalPnl = arr.reduce((s, t) => s + t.pnl_usd, 0);
+  const totalVol = arr.reduce((s, t) => s + t.size_usd, 0);
+  const avgPrice = total > 0 ? arr.reduce((s,t) => s + t.avg_price, 0) / total : 0;
+  const winRate = withPnl.length > 0 ? wins / withPnl.length : 0;
+
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-filtered').textContent =
+    total < allTrades.length ? `(фильтр активен)` : '';
+  document.getElementById('stat-winrate').textContent =
+    withPnl.length > 0 ? (winRate * 100).toFixed(1) + '%' : '—';
+  document.getElementById('stat-wl').textContent =
+    withPnl.length > 0 ? `${wins}W / ${withPnl.length - wins}L` : '';
+  const pnlEl = document.getElementById('stat-pnl');
+  pnlEl.textContent = (totalPnl >= 0 ? '+' : '') + totalPnl.toFixed(2) + ' $';
+  pnlEl.className = 'stat-value ' + (totalPnl > 0 ? 'green' : totalPnl < 0 ? 'red' : '');
+  document.getElementById('stat-avg-pnl').textContent =
+    total > 0 ? 'avg ' + (totalPnl / total).toFixed(2) + ' $' : '';
+  document.getElementById('stat-volume').textContent =
+    totalVol >= 1000 ? (totalVol / 1000).toFixed(1) + 'K' : totalVol.toFixed(0);
+  document.getElementById('stat-avg-size').textContent =
+    total > 0 ? 'avg ' + (totalVol / total).toFixed(2) + ' $' : '';
+  document.getElementById('stat-avgprice').textContent =
+    avgPrice > 0 ? (avgPrice * 100).toFixed(1) + '%' : '—';
+}
+
+// ─── Таблица ──────────────────────────────────────────────────────────────────
+function renderTable() {
+  const tbody = document.getElementById('tradesBody');
+  const start = (currentPage - 1) * PAGE_SIZE;
+  const page = filtered.slice(start, start + PAGE_SIZE);
+
+  if (page.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="10">
+      <div class="empty">
+        <div class="empty-icon">🔍</div>
+        <div class="empty-title">Нет данных</div>
+        <div class="empty-sub">Измените фильтры или загрузите другой файл</div>
+      </div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = page.map((t, i) => {
+    const num = start + i + 1;
+    const dateStr = t.ts ? t.ts.slice(0, 16).replace('T', ' ') : '—';
+    const sideBadge = t.side === 'YES'
+      ? `<span class="badge badge-yes">YES</span>`
+      : t.side === 'NO'
+        ? `<span class="badge badge-no">NO</span>`
+        : `<span class="badge badge-other">${t.side || '—'}</span>`;
+    const pnlClass = t.pnl_usd > 0 ? 'pnl-pos' : t.pnl_usd < 0 ? 'pnl-neg' : 'pnl-zero';
+    const pnlStr = t.pnl_usd !== 0
+      ? `<span class="${pnlClass}">${t.pnl_usd >= 0 ? '+' : ''}${t.pnl_usd.toFixed(2)}</span>`
+      : `<span class="pnl-zero">—</span>`;
+
+    const stratClass = t.strategy === 'arb' || t.strategy.includes('arb') ? 'badge-arb'
+      : t.source === 'manual' ? 'badge-manual'
+      : 'badge-main';
+    const stratBadge = `<span class="badge ${stratClass}">${t.strategy}</span>`;
+
+    const title = t.market_title.length > 35
+      ? t.market_title.slice(0, 35) + '…'
+      : t.market_title;
+
+    return `<tr>
+      <td class="mono">${num}</td>
+      <td class="mono" style="white-space:nowrap">${dateStr}</td>
+      <td><span class="market-title" title="${escapeHtml(t.market_title)}">${escapeHtml(title)}</span></td>
+      <td>${sideBadge}</td>
+      <td class="mono">${t.size_usd > 0 ? t.size_usd.toFixed(2) : '—'}</td>
+      <td class="mono">${t.avg_price > 0 ? (t.avg_price * 100).toFixed(1) + '%' : '—'}</td>
+      <td>${pnlStr}</td>
+      <td>${stratBadge}</td>
+      <td class="mono" style="color:var(--text-muted);font-size:12px">${escapeHtml(t.source)}</td>
+      <td class="mono" style="color:var(--text-muted);font-size:12px">${escapeHtml(t.market_category)}</td>
+    </tr>`;
+  }).join('');
+}
+
+function escapeHtml(s) {
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ─── Пагинация ────────────────────────────────────────────────────────────────
+function renderPagination() {
+  const total = Math.ceil(filtered.length / PAGE_SIZE);
+  const pag = document.getElementById('pagination');
+  if (total <= 1) { pag.innerHTML = ''; return; }
+
+  let html = `<button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>&#8592;</button>`;
+
+  // Показываем: первая, ..., окно вокруг текущей, ..., последняя
+  const pages = new Set([1, total, currentPage, currentPage-1, currentPage+1].filter(p => p>=1 && p<=total));
+  const sorted = [...pages].sort((a,b)=>a-b);
+  let prev = 0;
+  for (const p of sorted) {
+    if (prev && p - prev > 1) html += `<span class="page-info">…</span>`;
+    html += `<button class="page-btn ${p===currentPage?'active':''}" onclick="goPage(${p})">${p}</button>`;
+    prev = p;
+  }
+
+  html += `<button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===total?'disabled':''}>&#8594;</button>`;
+  html += `<span class="page-info">${currentPage}/${total} (${filtered.length} записей)</span>`;
+  pag.innerHTML = html;
+}
+
+function goPage(p) {
+  const total = Math.ceil(filtered.length / PAGE_SIZE);
+  if (p < 1 || p > total) return;
+  currentPage = p;
+  renderTable();
+  renderPagination();
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+// ─── Demo данные (если нет файла) ────────────────────────────────────────────
+// Показываем пустую страницу с upload-area — данные грузятся только из CSV
+</script>
+</body>
+</html>
