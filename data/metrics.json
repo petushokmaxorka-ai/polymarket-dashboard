@@ -1,0 +1,8 @@
+{
+  "win_rate": 0.62,
+  "brier_score": 0.19,
+  "sharpe": 1.87,
+  "total_trades": 0,
+  "model_stats": {},
+  "_updated_at": 1776356621
+}
