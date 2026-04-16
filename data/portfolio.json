@@ -45,12 +45,12 @@
       "entry_price": 0.4653,
       "size": 23.3395,
       "initial_value": 10.86,
-      "current_value": 15.9875,
-      "cur_price": 0.685,
+      "current_value": 16.2186,
+      "cur_price": 0.6949,
       "outcome": "No",
       "slug": "will-the-us-invade-iran-before-2027",
       "condition_id": "0x5db999fad322cea2914535aae5517060c3f80ad6d8c0231cde2124a434d16846",
-      "pnl_pct": 47.2132,
+      "pnl_pct": 49.3412,
       "side": "NO"
     },
     {
@@ -135,5 +135,5 @@
   "positions_count": 10,
   "wallet": "0x181A9735...",
   "mode": "LIVE",
-  "_updated_at": 1776370591
+  "_updated_at": 1776370901
 }
