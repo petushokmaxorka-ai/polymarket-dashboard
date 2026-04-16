@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Polymarket Bot — Calibration Dashboard</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d1117;--surface:#161b22;--surface-2:#21262d;--surface-3:#2d333b;
+  --border:rgba(255,255,255,0.09);--text:#e6edf3;--text-muted:#8b949e;
+  --primary:#58a6ff;--primary-dim:rgba(88,166,255,0.12);
+  --green:#3fb950;--green-dim:rgba(63,185,80,0.13);
+  --orange:#f0883e;--orange-dim:rgba(240,136,62,0.13);
+  --red:#f85149;--red-dim:rgba(248,81,73,0.13);
+  --purple:#bc8cff;--yellow:#e3b341;
+  --radius:10px;--radius-sm:6px;
+  --font:Inter,-apple-system,sans-serif;--font-mono:'JetBrains Mono',monospace;
+}
+[data-theme="light"]{
+  --bg:#f6f8fa;--surface:#fff;--surface-2:#f0f2f5;--surface-3:#e8eaed;
+  --border:rgba(0,0,0,0.08);--text:#1f2328;--text-muted:#636c76;
+  --primary:#0969da;--primary-dim:rgba(9,105,218,0.09);
+  --green:#1a7f37;--green-dim:rgba(26,127,55,0.1);
+  --orange:#bc4c00;--red:#cf222e;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14px;line-height:1.6;min-height:100vh}
+.header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
+.header-left{display:flex;align-items:center;gap:10px}
+.logo{width:32px;height:32px;background:linear-gradient(135deg,var(--primary),var(--green));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.header-title{font-size:15px;font-weight:700}
+.header-sub{font-size:11px;color:var(--text-muted)}
+.theme-btn{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:5px 10px;font-size:12px;color:var(--text-muted);cursor:pointer}
+.body{padding:20px;max-width:900px;margin:0 auto}
+.section{margin-bottom:28px}
+.section-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);margin-bottom:12px}
+
+/* Stats row */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:20px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px}
+.stat-val{font-size:22px;font-weight:700;line-height:1.2}
+.stat-val.green{color:var(--green)}
+.stat-val.red{color:var(--red)}
+.stat-val.orange{color:var(--orange)}
+.stat-val.blue{color:var(--primary)}
+.stat-lbl{font-size:11px;color:var(--text-muted);margin-top:3px}
+
+/* Calibration chart */
+.chart-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px}
+.chart-title{font-size:13px;font-weight:600;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between}
+.chart-canvas-wrap{position:relative;height:280px}
+canvas{width:100%!important}
+.chart-legend{display:flex;gap:16px;margin-top:10px;font-size:11px;color:var(--text-muted)}
+.legend-item{display:flex;align-items:center;gap:5px}
+.legend-dot{width:10px;height:10px;border-radius:50%}
+
+/* Bucket table */
+.tbl-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{background:var(--surface-2);padding:8px 12px;text-align:left;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);border-bottom:1px solid var(--border)}
+td{padding:8px 12px;border-bottom:1px solid var(--border);color:var(--text)}
+tr:last-child td{border:none}
+tr:hover td{background:var(--surface-2)}
+.badge{display:inline-block;font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px}
+.badge-green{background:var(--green-dim);color:var(--green)}
+.badge-orange{background:var(--orange-dim);color:var(--orange)}
+.badge-red{background:var(--red-dim);color:var(--red)}
+
+/* Deviation bar */
+.dev-bar{display:flex;align-items:center;gap:6px;height:16px}
+.dev-track{flex:1;height:6px;background:var(--surface-3);border-radius:3px;position:relative;overflow:hidden}
+.dev-fill{height:100%;border-radius:3px;transition:width .3s}
+.dev-positive{background:var(--green)}
+.dev-negative{background:var(--red)}
+.dev-text{font-size:10px;width:42px;text-align:right;font-family:var(--font-mono)}
+
+/* Upload zone */
+.upload-zone{border:2px dashed var(--border);border-radius:var(--radius);padding:28px;text-align:center;color:var(--text-muted);cursor:pointer;transition:all .2s;margin-bottom:20px}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--primary);color:var(--primary);background:var(--primary-dim)}
+.upload-zone input{display:none}
+.upload-icon{font-size:28px;margin-bottom:8px}
+.upload-label{font-size:13px;font-weight:500}
+.upload-sub{font-size:11px;margin-top:4px}
+
+/* Info box */
+.info-box{background:var(--primary-dim);border:1px solid rgba(88,166,255,.2);border-radius:var(--radius-sm);padding:10px 14px;font-size:12px;color:var(--text);margin-bottom:16px}
+.info-box.warn{background:var(--orange-dim);border-color:rgba(240,136,62,.25);color:var(--orange)}
+
+/* Empty state */
+.empty{text-align:center;padding:40px 20px;color:var(--text-muted)}
+.empty-icon{font-size:36px;margin-bottom:10px}
+.empty-title{font-size:14px;font-weight:600;margin-bottom:6px}
+.empty-sub{font-size:12px;line-height:1.7}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div class="logo">📊</div>
+    <div>
+      <div class="header-title">Calibration Dashboard</div>
+      <div class="header-sub" id="headerSub">Polymarket Bot v10</div>
+    </div>
+  </div>
+  <button class="theme-btn" onclick="toggleTheme()">☀️ Светлая</button>
+</div>
+
+<div class="body">
+
+  <!-- Upload -->
+  <div class="upload-zone" id="uploadZone" onclick="document.getElementById('csvInput').click()"
+       ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
+    <input type="file" id="csvInput" accept=".csv,.jsonl" onchange="onFileSelect(event)">
+    <div class="upload-icon">📂</div>
+    <div class="upload-label">Загрузить calibration.csv или trades.jsonl</div>
+    <div class="upload-sub">Или перетащи файл сюда · Экспортируй из бота: /export calibration</div>
+  </div>
+
+  <div class="info-box">
+    Calibration chart показывает насколько хорошо откалиброван AI Council: если p_yes=70%, то реальный win rate должен быть ~70%. Диагональ = идеальная калибровка.
+  </div>
+
+  <!-- Stats -->
+  <div id="statsSection" style="display:none">
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-val blue" id="statTrades">—</div>
+        <div class="stat-lbl">Сделок с исходом</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" id="statBrier">—</div>
+        <div class="stat-lbl">Brier Score (avg)</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" id="statWinRate">—</div>
+        <div class="stat-lbl">Win Rate (overall)</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" id="statCalibration">—</div>
+        <div class="stat-lbl">Calibration Error (ECE)</div>
+      </div>
+    </div>
+
+    <!-- Chart -->
+    <div class="section">
+      <div class="chart-wrap">
+        <div class="chart-title">
+          <span>Calibration Plot: p_yes vs реальный win%</span>
+          <span style="font-size:11px;color:var(--text-muted)" id="chartBuckets"></span>
+        </div>
+        <div class="chart-canvas-wrap">
+          <canvas id="calibChart"></canvas>
+        </div>
+        <div class="chart-legend">
+          <div class="legend-item"><div class="legend-dot" style="background:var(--primary)"></div> Фактический win rate</div>
+          <div class="legend-item"><div class="legend-dot" style="background:rgba(255,255,255,0.2);border:1px dashed var(--text-muted)"></div> Идеальная калибровка</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bucket table -->
+    <div class="section">
+      <div class="section-title">Детали по бакетам</div>
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Бакет p_yes</th>
+              <th>Ср. p_yes</th>
+              <th>Win Rate</th>
+              <th>Отклонение</th>
+              <th>Brier avg</th>
+              <th>Сделок</th>
+              <th>Оценка</th>
+            </tr>
+          </thead>
+          <tbody id="bucketTbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Interpretation -->
+    <div class="section">
+      <div class="section-title">Интерпретация</div>
+      <div id="interpretation" class="info-box"></div>
+    </div>
+  </div>
+
+  <!-- Empty state -->
+  <div class="empty" id="emptyState">
+    <div class="empty-icon">📈</div>
+    <div class="empty-title">Загрузи данные калибровки</div>
+    <div class="empty-sub">
+      Экспортируй из Telegram-бота командой <code>/export calibration</code><br>
+      или <code>/export trades</code> — парсинг произойдёт здесь автоматически.
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── Тема ──────────────────────────────────────────────────────────────────────
+const tg = window.Telegram?.WebApp;
+if (tg) { tg.ready(); tg.expand(); }
+
+function toggleTheme() {
+  const h = document.documentElement;
+  const next = h.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  h.setAttribute('data-theme', next);
+  document.querySelector('.theme-btn').textContent = next === 'dark' ? '☀️ Светлая' : '🌙 Тёмная';
+  if (window._chartInstance) drawChart(window._bucketData);
+}
+
+// ── Drag & Drop ───────────────────────────────────────────────────────────────
+function onDragOver(e) { e.preventDefault(); document.getElementById('uploadZone').classList.add('drag'); }
+function onDragLeave(e) { document.getElementById('uploadZone').classList.remove('drag'); }
+function onDrop(e) {
+  e.preventDefault();
+  document.getElementById('uploadZone').classList.remove('drag');
+  const file = e.dataTransfer.files[0];
+  if (file) processFile(file);
+}
+function onFileSelect(e) {
+  const file = e.target.files[0];
+  if (file) processFile(file);
+}
+
+// ── Парсинг ───────────────────────────────────────────────────────────────────
+function processFile(file) {
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const text = e.target.result;
+    let buckets;
+    if (file.name.endsWith('.csv')) {
+      buckets = parseCalibrationCSV(text);
+    } else if (file.name.endsWith('.jsonl')) {
+      buckets = buildBucketsFromJSONL(text);
+    } else {
+      alert('Поддерживаются .csv и .jsonl файлы');
+      return;
+    }
+    if (!buckets || buckets.length === 0) {
+      alert('Не удалось найти данные калибровки в файле.\nНужен calibration.csv с колонками: bucket, p_yes_avg, win_rate, count, brier_avg\nили trades.jsonl с полями council_snapshot.ensemble_p и resolution.status');
+      return;
+    }
+    document.getElementById('headerSub').textContent = `Файл: ${file.name} · ${buckets.length} бакетов`;
+    renderDashboard(buckets);
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+function parseCalibrationCSV(text) {
+  const lines = text.trim().split('\n');
+  if (lines.length < 2) return [];
+  const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+  const idxBucket = headers.indexOf('bucket_label') !== -1 ? headers.indexOf('bucket_label') : headers.indexOf('bucket');
+  const idxPYes   = headers.indexOf('p_yes_avg');
+  const idxWR     = headers.indexOf('win_rate');
+  const idxCount  = headers.indexOf('count');
+  const idxBrier  = headers.indexOf('brier_avg');
+  if (idxPYes === -1 || idxWR === -1) return [];
+  return lines.slice(1).filter(l => l.trim()).map(line => {
+    const cols = line.split(',');
+    return {
+      bucket:    idxBucket >= 0 ? cols[idxBucket]?.trim() : '?',
+      p_yes_avg: parseFloat(cols[idxPYes]) || 0,
+      win_rate:  parseFloat(cols[idxWR]) || 0,
+      count:     parseInt(cols[idxCount]) || 0,
+      brier_avg: parseFloat(cols[idxBrier]) || 0,
+    };
+  }).filter(b => b.count > 0 || b.p_yes_avg > 0);
+}
+
+function buildBucketsFromJSONL(text) {
+  // Парсим trades.jsonl и строим бакеты
+  const lines = text.trim().split('\n');
+  const points = [];
+  for (const line of lines) {
+    try {
+      const e = JSON.parse(line);
+      if (e.type !== 'trade') continue;
+      const p = e.payload || {};
+      const cs = p.council_snapshot || {};
+      const res = p.resolution || {};
+      const pYes = parseFloat(cs.ensemble_p);
+      const status = res.status;
+      if (isNaN(pYes) || !['win','loss'].includes(status)) continue;
+      const outcome = status === 'win' ? 1 : 0;
+      points.push({ p_yes: pYes, outcome, brier: (pYes - outcome)**2 });
+    } catch(e) {}
+  }
+  if (points.length === 0) return [];
+
+  const BUCKETS = [
+    [0.00,0.10],[0.10,0.20],[0.20,0.30],[0.30,0.40],[0.40,0.50],
+    [0.50,0.60],[0.60,0.70],[0.70,0.80],[0.80,0.90],[0.90,1.01],
+  ];
+  return BUCKETS.map(([lo,hi]) => {
+    const pts = points.filter(d => d.p_yes >= lo && d.p_yes < hi);
+    if (pts.length === 0) return null;
+    return {
+      bucket:    `${Math.round(lo*100)}–${Math.round(hi*100)}%`,
+      p_yes_avg: pts.reduce((s,d)=>s+d.p_yes,0)/pts.length,
+      win_rate:  pts.reduce((s,d)=>s+d.outcome,0)/pts.length,
+      count:     pts.length,
+      brier_avg: pts.reduce((s,d)=>s+d.brier,0)/pts.length,
+    };
+  }).filter(Boolean);
+}
+
+// ── Рендер ────────────────────────────────────────────────────────────────────
+function renderDashboard(buckets) {
+  window._bucketData = buckets;
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('statsSection').style.display = 'block';
+
+  // Stats
+  const totalTrades = buckets.reduce((s,b)=>s+b.count,0);
+  const avgBrier = buckets.reduce((s,b)=>s+b.brier_avg*b.count,0) / (totalTrades||1);
+  const overallWR = buckets.reduce((s,b)=>s+b.win_rate*b.count,0) / (totalTrades||1);
+  // ECE = Σ (n_i/N) * |p_i - wr_i|
+  const ece = buckets.reduce((s,b) => s + (b.count/totalTrades)*Math.abs(b.p_yes_avg - b.win_rate), 0);
+
+  const brierEl = document.getElementById('statBrier');
+  brierEl.textContent = avgBrier.toFixed(3);
+  brierEl.className = 'stat-val ' + (avgBrier < 0.15 ? 'green' : avgBrier < 0.22 ? 'orange' : 'red');
+
+  const wrEl = document.getElementById('statWinRate');
+  wrEl.textContent = (overallWR*100).toFixed(1) + '%';
+  wrEl.className = 'stat-val ' + (overallWR > 0.55 ? 'green' : overallWR > 0.45 ? 'orange' : 'red');
+
+  const eceEl = document.getElementById('statCalibration');
+  eceEl.textContent = (ece*100).toFixed(1) + '%';
+  eceEl.className = 'stat-val ' + (ece < 0.05 ? 'green' : ece < 0.10 ? 'orange' : 'red');
+
+  document.getElementById('statTrades').textContent = totalTrades;
+  document.getElementById('chartBuckets').textContent = `${buckets.length} бакетов`;
+
+  drawChart(buckets);
+  renderTable(buckets, totalTrades);
+  renderInterpretation(avgBrier, overallWR, ece, buckets);
+}
+
+// ── Chart ─────────────────────────────────────────────────────────────────────
+function drawChart(buckets) {
+  const canvas = document.getElementById('calibChart');
+  const ctx = canvas.getContext('2d');
+  const wrap = canvas.parentElement;
+  canvas.width  = wrap.clientWidth;
+  canvas.height = 280;
+
+  const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+  const textColor  = isDark ? '#8b949e' : '#636c76';
+  const gridColor  = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
+  const idealColor = isDark ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.15)';
+  const barColor   = isDark ? '#58a6ff' : '#0969da';
+  const barColorLow= isDark ? '#f85149' : '#cf222e';
+
+  const PAD = { top:20, right:20, bottom:44, left:50 };
+  const W = canvas.width  - PAD.left - PAD.right;
+  const H = canvas.height - PAD.top  - PAD.bottom;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Grid
+  ctx.strokeStyle = gridColor;
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 5; i++) {
+    const y = PAD.top + H * (1 - i/5);
+    ctx.beginPath(); ctx.moveTo(PAD.left, y); ctx.lineTo(PAD.left + W, y); ctx.stroke();
+    ctx.fillStyle = textColor;
+    ctx.font = '10px Inter,sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText((i*20)+'%', PAD.left - 6, y + 4);
+  }
+
+  // X axis labels
+  const step = W / buckets.length;
+  buckets.forEach((b, i) => {
+    const x = PAD.left + i * step + step/2;
+    ctx.fillStyle = textColor;
+    ctx.font = '9px Inter,sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(b.bucket, x, PAD.top + H + 20);
+  });
+
+  // Ideal line (diagonal)
+  ctx.strokeStyle = idealColor;
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([5,4]);
+  ctx.beginPath();
+  ctx.moveTo(PAD.left, PAD.top + H);
+  ctx.lineTo(PAD.left + W, PAD.top);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Bars: actual win_rate
+  const BAR_W = step * 0.55;
+  buckets.forEach((b, i) => {
+    const x = PAD.left + i * step + step/2 - BAR_W/2;
+    const barH = b.win_rate * H;
+    const y = PAD.top + H - barH;
+    const dev = b.win_rate - b.p_yes_avg;
+    ctx.fillStyle = dev >= -0.03 ? barColor : barColorLow;
+    ctx.globalAlpha = 0.85;
+    ctx.beginPath();
+    ctx.roundRect ? ctx.roundRect(x, y, BAR_W, barH, [4,4,0,0]) : ctx.rect(x, y, BAR_W, barH);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+
+    // Win rate label
+    if (barH > 16) {
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 10px Inter,sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText((b.win_rate*100).toFixed(0)+'%', x + BAR_W/2, y + 13);
+    }
+  });
+
+  // X axis title
+  ctx.fillStyle = textColor;
+  ctx.font = '10px Inter,sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('Прогнозная вероятность p_yes', PAD.left + W/2, PAD.top + H + 38);
+
+  // Y axis title
+  ctx.save();
+  ctx.translate(12, PAD.top + H/2);
+  ctx.rotate(-Math.PI/2);
+  ctx.fillText('Фактический win rate', 0, 0);
+  ctx.restore();
+}
+
+window.addEventListener('resize', () => {
+  if (window._bucketData) drawChart(window._bucketData);
+});
+
+// ── Table ─────────────────────────────────────────────────────────────────────
+function renderTable(buckets, totalTrades) {
+  const tbody = document.getElementById('bucketTbody');
+  tbody.innerHTML = '';
+  buckets.forEach(b => {
+    const dev = b.win_rate - b.p_yes_avg;
+    const devPct = (dev * 100).toFixed(1);
+    const devSign = dev >= 0 ? '+' : '';
+    const devAbs = Math.abs(dev);
+    const devBarW = Math.min(100, devAbs * 500); // масштаб
+
+    let badge = '';
+    if (devAbs < 0.04)      badge = '<span class="badge badge-green">Хорошо</span>';
+    else if (devAbs < 0.09) badge = '<span class="badge badge-orange">Средне</span>';
+    else                    badge = '<span class="badge badge-red">Плохо</span>';
+
+    const brierColor = b.brier_avg < 0.15 ? 'var(--green)' : b.brier_avg < 0.22 ? 'var(--orange)' : 'var(--red)';
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><strong>${b.bucket}</strong></td>
+      <td>${(b.p_yes_avg*100).toFixed(1)}%</td>
+      <td>${(b.win_rate*100).toFixed(1)}%</td>
+      <td>
+        <div class="dev-bar">
+          <div class="dev-track">
+            <div class="dev-fill ${dev>=0?'dev-positive':'dev-negative'}" style="width:${devBarW}%"></div>
+          </div>
+          <span class="dev-text" style="color:${dev>=0?'var(--green)':'var(--red)'}">${devSign}${devPct}%</span>
+        </div>
+      </td>
+      <td style="color:${brierColor};font-family:var(--font-mono)">${b.brier_avg.toFixed(3)}</td>
+      <td>${b.count}</td>
+      <td>${badge}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// ── Interpretation ────────────────────────────────────────────────────────────
+function renderInterpretation(brier, wr, ece, buckets) {
+  const el = document.getElementById('interpretation');
+  const bad = buckets.filter(b => Math.abs(b.win_rate - b.p_yes_avg) > 0.08);
+  let text = '';
+
+  if (ece < 0.05) {
+    text += '✅ <strong>Отличная калибровка</strong> — Council хорошо предсказывает вероятности. ';
+  } else if (ece < 0.10) {
+    text += '🟡 <strong>Приемлемая калибровка</strong> — есть небольшие отклонения. ';
+  } else {
+    text += '🔴 <strong>Плохая калибровка</strong> — модели системно переоценивают или недооценивают вероятности. ';
+  }
+
+  if (brier < 0.15) text += `Brier Score ${brier.toFixed(3)} — хорошо (случайный = 0.25). `;
+  else if (brier < 0.22) text += `Brier Score ${brier.toFixed(3)} — приемлемо. `;
+  else text += `Brier Score ${brier.toFixed(3)} — выше порога алерта 0.20. Проверь /brier в боте. `;
+
+  if (bad.length > 0) {
+    text += `<br><br><strong>Бакеты с отклонением > 8%:</strong> ${bad.map(b=>b.bucket).join(', ')}. Возможно стоит снизить вес моделей для этих диапазонов.`;
+  }
+
+  if (wr < 0.45) {
+    el.className = 'info-box warn';
+    text += '<br><br>⚠️ Win Rate ниже 45% — Council хуже случайного угадывания. Проверь /brier.';
+  } else {
+    el.className = 'info-box';
+  }
+
+  el.innerHTML = text;
+}
+</script>
+</body>
+</html>
