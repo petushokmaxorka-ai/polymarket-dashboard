@@ -19,12 +19,12 @@
       "entry_price": 0.7424,
       "size": 32.9084,
       "initial_value": 24.4323,
-      "current_value": 24.5168,
-      "cur_price": 0.745,
+      "current_value": 24.3522,
+      "cur_price": 0.74,
       "outcome": "No",
       "slug": "ukraine-signs-peace-deal-with-russia-before-2027",
       "condition_id": "0x4167e22670f31e5f93d132f78108f3fae809bd15cadf78983eff096845ed1415",
-      "pnl_pct": 0.3454,
+      "pnl_pct": -0.3278,
       "side": "NO"
     },
     {
@@ -135,5 +135,5 @@
   "positions_count": 10,
   "wallet": "0x181A9735...",
   "mode": "LIVE",
-  "_updated_at": 1776427397
+  "_updated_at": 1776427708
 }
