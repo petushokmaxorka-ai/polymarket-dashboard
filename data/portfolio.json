@@ -58,12 +58,12 @@
       "entry_price": 0.77,
       "size": 20.8961,
       "initial_value": 16.0899,
-      "current_value": 14.9407,
-      "cur_price": 0.715,
+      "current_value": 14.8362,
+      "cur_price": 0.71,
       "outcome": "No",
       "slug": "us-x-iran-permanent-peace-deal-by",
       "condition_id": "0xbbc6689d0f6d57ea42168836712237c7308b3e0118c8914d31b6126d0f3254c5",
-      "pnl_pct": -7.1423,
+      "pnl_pct": -7.7917,
       "side": "NO"
     },
     {
@@ -135,5 +135,5 @@
   "positions_count": 10,
   "wallet": "0x181A9735...",
   "mode": "LIVE",
-  "_updated_at": 1776429577
+  "_updated_at": 1776429883
 }
