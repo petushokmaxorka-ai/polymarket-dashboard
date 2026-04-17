@@ -41,19 +41,6 @@
       "side": "NO"
     },
     {
-      "title": "Will the U.S. invade Iran before 2027?",
-      "entry_price": 0.4653,
-      "size": 23.3395,
-      "initial_value": 10.86,
-      "current_value": 16.2186,
-      "cur_price": 0.6949,
-      "outcome": "No",
-      "slug": "will-the-us-invade-iran-before-2027",
-      "condition_id": "0x5db999fad322cea2914535aae5517060c3f80ad6d8c0231cde2124a434d16846",
-      "pnl_pct": 49.3412,
-      "side": "NO"
-    },
-    {
       "title": "Ukraine agrees to limit size of armed forces before 2027?",
       "entry_price": 0.7899,
       "size": 23.2346,
@@ -64,6 +51,19 @@
       "slug": "ukraine-agrees-to-limit-size-of-armed-forces-before-2027",
       "condition_id": "0xec4e5a2666b14fedded928dc4dcd6b5f2d38cc1eba91755b8aa6de1fabd42a2f",
       "pnl_pct": -10.7563,
+      "side": "NO"
+    },
+    {
+      "title": "US x Iran permanent peace deal by April 22, 2026?",
+      "entry_price": 0.77,
+      "size": 20.8961,
+      "initial_value": 16.0899,
+      "current_value": 16.1944,
+      "cur_price": 0.775,
+      "outcome": "No",
+      "slug": "us-x-iran-permanent-peace-deal-by",
+      "condition_id": "0xbbc6689d0f6d57ea42168836712237c7308b3e0118c8914d31b6126d0f3254c5",
+      "pnl_pct": 0.6488,
       "side": "NO"
     },
     {
@@ -135,5 +135,5 @@
   "positions_count": 10,
   "wallet": "0x181A9735...",
   "mode": "LIVE",
-  "_updated_at": 1776393749
+  "_updated_at": 1776395367
 }
