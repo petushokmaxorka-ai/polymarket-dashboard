@@ -97,12 +97,12 @@
       "entry_price": 0.8299,
       "size": 15.6667,
       "initial_value": 13.0028,
-      "current_value": 12.8467,
-      "cur_price": 0.82,
+      "current_value": 12.925,
+      "cur_price": 0.825,
       "outcome": "No",
       "slug": "ukraine-agrees-not-to-join-nato-before-2027",
       "condition_id": "0x5caf6459052e0fcc736c368f97b5ea98e6bf264507f2e94ac8d69fcc441b1bae",
-      "pnl_pct": -1.2005,
+      "pnl_pct": -0.5983,
       "side": "NO"
     },
     {
@@ -135,5 +135,5 @@
   "positions_count": 10,
   "wallet": "0x181A9735...",
   "mode": "LIVE",
-  "_updated_at": 1776432982
+  "_updated_at": 1776433318
 }
