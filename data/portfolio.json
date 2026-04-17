@@ -6,12 +6,12 @@
       "entry_price": 0.5799,
       "size": 34.4944,
       "initial_value": 20.0059,
-      "current_value": 21.559,
-      "cur_price": 0.625,
+      "current_value": 21.3865,
+      "cur_price": 0.62,
       "outcome": "No",
       "slug": "will-russia-capture-all-of-kostyantynivka-by",
       "condition_id": "0x627ed310dc3977b2d71d96a4f2fccd6050553f6f165efd6c29578f5678f3f863",
-      "pnl_pct": 7.7626,
+      "pnl_pct": 6.9004,
       "side": "NO"
     },
     {
@@ -58,12 +58,12 @@
       "entry_price": 0.77,
       "size": 20.8961,
       "initial_value": 16.0899,
-      "current_value": 14.8362,
-      "cur_price": 0.71,
+      "current_value": 14.1048,
+      "cur_price": 0.675,
       "outcome": "No",
       "slug": "us-x-iran-permanent-peace-deal-by",
       "condition_id": "0xbbc6689d0f6d57ea42168836712237c7308b3e0118c8914d31b6126d0f3254c5",
-      "pnl_pct": -7.7917,
+      "pnl_pct": -12.3374,
       "side": "NO"
     },
     {
@@ -135,5 +135,5 @@
   "positions_count": 10,
   "wallet": "0x181A9735...",
   "mode": "LIVE",
-  "_updated_at": 1776429883
+  "_updated_at": 1776430195
 }
