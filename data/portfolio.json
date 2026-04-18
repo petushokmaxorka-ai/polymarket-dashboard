@@ -32,12 +32,12 @@
       "entry_price": 0.3999,
       "size": 31.35,
       "initial_value": 12.5399,
-      "current_value": 9.5617,
-      "cur_price": 0.305,
+      "current_value": 9.8752,
+      "cur_price": 0.315,
       "outcome": "Yes",
       "slug": "us-x-iran-permanent-peace-deal-by",
       "condition_id": "0xbbc6689d0f6d57ea42168836712237c7308b3e0118c8914d31b6126d0f3254c5",
-      "pnl_pct": -23.7496,
+      "pnl_pct": -21.2496,
       "side": "YES"
     },
     {
@@ -97,12 +97,12 @@
       "entry_price": 0.8299,
       "size": 15.6667,
       "initial_value": 13.0028,
-      "current_value": 12.7668,
-      "cur_price": 0.8149,
+      "current_value": 12.8467,
+      "cur_price": 0.82,
       "outcome": "No",
       "slug": "ukraine-agrees-not-to-join-nato-before-2027",
       "condition_id": "0x5caf6459052e0fcc736c368f97b5ea98e6bf264507f2e94ac8d69fcc441b1bae",
-      "pnl_pct": -1.8149,
+      "pnl_pct": -1.2005,
       "side": "NO"
     },
     {
@@ -135,5 +135,5 @@
   "positions_count": 10,
   "wallet": "0x181A9735...",
   "mode": "LIVE",
-  "_updated_at": 1776473220
+  "_updated_at": 1776473528
 }
