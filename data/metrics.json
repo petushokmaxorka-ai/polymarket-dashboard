@@ -1,6 +1,6 @@
 {
-  "uptime_seconds": 64351.8,
-  "uptime_human": "17h 52m 31s",
+  "uptime_seconds": 64660.8,
+  "uptime_human": "17h 57m 40s",
   "latency": {},
   "throughput": {
     "trades": {
@@ -67,5 +67,5 @@
       "weight": 1.3
     }
   },
-  "_updated_at": 1776519720
+  "_updated_at": 1776520029
 }
