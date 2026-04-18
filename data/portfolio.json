@@ -123,17 +123,17 @@
       "entry_price": 0.8099,
       "size": 9.1728,
       "initial_value": 7.4299,
-      "current_value": 7.3841,
-      "cur_price": 0.805,
+      "current_value": 7.3382,
+      "cur_price": 0.8,
       "outcome": "No",
       "slug": "ukraine-election-held-in-2025",
       "condition_id": "0xe29c8bf245ab35d14c722503922e6086da7dcfb08f357d1e8012331573d9e633",
-      "pnl_pct": -0.6164,
+      "pnl_pct": -1.2341,
       "side": "NO"
     }
   ],
   "positions_count": 10,
   "wallet": "0x181A9735...",
   "mode": "LIVE",
-  "_updated_at": 1776543429
+  "_updated_at": 1776543737
 }
