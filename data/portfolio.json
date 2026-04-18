@@ -45,12 +45,12 @@
       "entry_price": 0.8399,
       "size": 28.5747,
       "initial_value": 24.0024,
-      "current_value": 24.2885,
-      "cur_price": 0.85,
+      "current_value": 24.1456,
+      "cur_price": 0.845,
       "outcome": "No",
       "slug": "will-ukraine-agree-to-cede-territory-to-russia-before-2027",
       "condition_id": "0x21bf9a7dae81b6bd51acae73185686ab8997b81b1401e4be10e114d472599c26",
-      "pnl_pct": 1.1915,
+      "pnl_pct": 0.5961,
       "side": "NO"
     },
     {
@@ -58,12 +58,12 @@
       "entry_price": 0.7899,
       "size": 23.2346,
       "initial_value": 18.3547,
-      "current_value": 16.9612,
-      "cur_price": 0.73,
+      "current_value": 16.845,
+      "cur_price": 0.725,
       "outcome": "No",
       "slug": "ukraine-agrees-to-limit-size-of-armed-forces-before-2027",
       "condition_id": "0xec4e5a2666b14fedded928dc4dcd6b5f2d38cc1eba91755b8aa6de1fabd42a2f",
-      "pnl_pct": -7.592,
+      "pnl_pct": -8.2251,
       "side": "NO"
     },
     {
@@ -97,12 +97,12 @@
       "entry_price": 0.8299,
       "size": 15.6667,
       "initial_value": 13.0028,
-      "current_value": 12.8467,
-      "cur_price": 0.82,
+      "current_value": 12.7668,
+      "cur_price": 0.8149,
       "outcome": "No",
       "slug": "ukraine-agrees-not-to-join-nato-before-2027",
       "condition_id": "0x5caf6459052e0fcc736c368f97b5ea98e6bf264507f2e94ac8d69fcc441b1bae",
-      "pnl_pct": -1.2005,
+      "pnl_pct": -1.8149,
       "side": "NO"
     },
     {
@@ -135,5 +135,5 @@
   "positions_count": 10,
   "wallet": "0x181A9735...",
   "mode": "LIVE",
-  "_updated_at": 1776484604
+  "_updated_at": 1776484912
 }
