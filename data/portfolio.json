@@ -32,12 +32,12 @@
       "entry_price": 0.3999,
       "size": 31.35,
       "initial_value": 12.5399,
-      "current_value": 5.7997,
-      "cur_price": 0.185,
+      "current_value": 5.643,
+      "cur_price": 0.18,
       "outcome": "Yes",
       "slug": "us-x-iran-permanent-peace-deal-by",
       "condition_id": "0xbbc6689d0f6d57ea42168836712237c7308b3e0118c8914d31b6126d0f3254c5",
-      "pnl_pct": -53.7503,
+      "pnl_pct": -55.0,
       "side": "YES"
     },
     {
@@ -45,12 +45,12 @@
       "entry_price": 0.8399,
       "size": 28.5747,
       "initial_value": 24.0024,
-      "current_value": 24.4314,
-      "cur_price": 0.855,
+      "current_value": 24.2885,
+      "cur_price": 0.85,
       "outcome": "No",
       "slug": "will-ukraine-agree-to-cede-territory-to-russia-before-2027",
       "condition_id": "0x21bf9a7dae81b6bd51acae73185686ab8997b81b1401e4be10e114d472599c26",
-      "pnl_pct": 1.7869,
+      "pnl_pct": 1.1915,
       "side": "NO"
     },
     {
@@ -135,5 +135,5 @@
   "positions_count": 10,
   "wallet": "0x181A9735...",
   "mode": "SIMULATION",
-  "_updated_at": 1776532044
+  "_updated_at": 1776532354
 }
