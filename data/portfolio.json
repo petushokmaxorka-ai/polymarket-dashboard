@@ -71,12 +71,12 @@
       "entry_price": 0.9,
       "size": 17.3111,
       "initial_value": 15.5799,
-      "current_value": 15.7531,
-      "cur_price": 0.91,
+      "current_value": 15.8396,
+      "cur_price": 0.915,
       "outcome": "No",
       "slug": "us-agrees-to-give-ukraine-security-guarantee-by-june-30",
       "condition_id": "0x2a991c78fc614786691a47c0ac0321dd60a0fa4b475c91cbf7c2ec14bb5e6823",
-      "pnl_pct": 1.111,
+      "pnl_pct": 1.6662,
       "side": "NO"
     },
     {
@@ -123,17 +123,17 @@
       "entry_price": 0.8099,
       "size": 9.1728,
       "initial_value": 7.4299,
-      "current_value": 7.3841,
-      "cur_price": 0.805,
+      "current_value": 7.3382,
+      "cur_price": 0.8,
       "outcome": "No",
       "slug": "ukraine-election-held-in-2025",
       "condition_id": "0xe29c8bf245ab35d14c722503922e6086da7dcfb08f357d1e8012331573d9e633",
-      "pnl_pct": -0.6164,
+      "pnl_pct": -1.2341,
       "side": "NO"
     }
   ],
   "positions_count": 10,
   "wallet": "0x181A9735...",
   "mode": "LIVE",
-  "_updated_at": 1776553851
+  "_updated_at": 1776554156
 }
