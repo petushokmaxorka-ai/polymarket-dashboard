@@ -6,12 +6,12 @@
       "entry_price": 0.5799,
       "size": 34.4944,
       "initial_value": 20.0059,
-      "current_value": 21.559,
-      "cur_price": 0.625,
+      "current_value": 21.3865,
+      "cur_price": 0.62,
       "outcome": "No",
       "slug": "will-russia-capture-all-of-kostyantynivka-by",
       "condition_id": "0x627ed310dc3977b2d71d96a4f2fccd6050553f6f165efd6c29578f5678f3f863",
-      "pnl_pct": 7.7626,
+      "pnl_pct": 6.9004,
       "side": "NO"
     },
     {
@@ -123,17 +123,17 @@
       "entry_price": 0.8099,
       "size": 9.1728,
       "initial_value": 7.4299,
-      "current_value": 7.4299,
-      "cur_price": 0.81,
+      "current_value": 7.3841,
+      "cur_price": 0.805,
       "outcome": "No",
       "slug": "ukraine-election-held-in-2025",
       "condition_id": "0xe29c8bf245ab35d14c722503922e6086da7dcfb08f357d1e8012331573d9e633",
-      "pnl_pct": 0.0,
+      "pnl_pct": -0.6164,
       "side": "NO"
     }
   ],
   "positions_count": 10,
   "wallet": "0x181A9735...",
   "mode": "LIVE",
-  "_updated_at": 1776513249
+  "_updated_at": 1776513557
 }
