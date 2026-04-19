@@ -6,12 +6,12 @@
       "entry_price": 0.5799,
       "size": 34.4944,
       "initial_value": 20.0059,
-      "current_value": 22.5938,
-      "cur_price": 0.655,
+      "current_value": 22.4213,
+      "cur_price": 0.65,
       "outcome": "No",
       "slug": "will-russia-capture-all-of-kostyantynivka-by",
       "condition_id": "0x627ed310dc3977b2d71d96a4f2fccd6050553f6f165efd6c29578f5678f3f863",
-      "pnl_pct": 12.9351,
+      "pnl_pct": 12.0728,
       "side": "NO"
     },
     {
@@ -135,5 +135,5 @@
   "positions_count": 10,
   "wallet": "0x181A9735...",
   "mode": "LIVE",
-  "_updated_at": 1776609464
+  "_updated_at": 1776609772
 }
