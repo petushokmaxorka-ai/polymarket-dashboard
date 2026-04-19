@@ -19,12 +19,12 @@
       "entry_price": 0.7424,
       "size": 32.9084,
       "initial_value": 24.4323,
-      "current_value": 24.3522,
-      "cur_price": 0.74,
+      "current_value": 24.5168,
+      "cur_price": 0.745,
       "outcome": "No",
       "slug": "ukraine-signs-peace-deal-with-russia-before-2027",
       "condition_id": "0x4167e22670f31e5f93d132f78108f3fae809bd15cadf78983eff096845ed1415",
-      "pnl_pct": -0.3278,
+      "pnl_pct": 0.3454,
       "side": "NO"
     },
     {
@@ -32,12 +32,12 @@
       "entry_price": 0.3999,
       "size": 31.35,
       "initial_value": 12.5399,
-      "current_value": 7.6807,
-      "cur_price": 0.245,
+      "current_value": 7.9942,
+      "cur_price": 0.255,
       "outcome": "Yes",
       "slug": "us-x-iran-permanent-peace-deal-by",
       "condition_id": "0xbbc6689d0f6d57ea42168836712237c7308b3e0118c8914d31b6126d0f3254c5",
-      "pnl_pct": -38.7496,
+      "pnl_pct": -36.2496,
       "side": "YES"
     },
     {
@@ -135,5 +135,5 @@
   "positions_count": 10,
   "wallet": "0x181A9735...",
   "mode": "LIVE",
-  "_updated_at": 1776605793
+  "_updated_at": 1776606098
 }
