@@ -123,17 +123,17 @@
       "entry_price": 0.7,
       "size": 8.0571,
       "initial_value": 5.6399,
-      "current_value": 5.9622,
-      "cur_price": 0.74,
+      "current_value": 6.0025,
+      "cur_price": 0.745,
       "outcome": "No",
       "slug": "iran-agrees-to-unrestricted-shipping-through-hormuz-in-april",
       "condition_id": "0x3e1363efbf76899943f61797d0ffc2de5c47a716e2ec66189f45ab65b28078f9",
-      "pnl_pct": 5.7127,
+      "pnl_pct": 6.4273,
       "side": "NO"
     }
   ],
   "positions_count": 10,
   "wallet": "0x181A9735...",
   "mode": "LIVE",
-  "_updated_at": 1776642558
+  "_updated_at": 1776642865
 }
