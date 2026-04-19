@@ -110,12 +110,12 @@
       "entry_price": 0.8637,
       "size": 10.1142,
       "initial_value": 8.7363,
-      "current_value": 9.0016,
-      "cur_price": 0.89,
+      "current_value": 8.951,
+      "cur_price": 0.885,
       "outcome": "No",
       "slug": "which-cities-will-russia-enter-by-june-30",
       "condition_id": "0xcbd66faaf74bf50d61ab2f63f9351f8086305dcbf16c1e3eab0ebfe576fce1c6",
-      "pnl_pct": 3.0356,
+      "pnl_pct": 2.4564,
       "side": "NO"
     },
     {
@@ -135,5 +135,5 @@
   "positions_count": 10,
   "wallet": "0x181A9735...",
   "mode": "LIVE",
-  "_updated_at": 1776618056
+  "_updated_at": 1776618362
 }
