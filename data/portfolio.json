@@ -58,12 +58,12 @@
       "entry_price": 0.9,
       "size": 17.3111,
       "initial_value": 15.5799,
-      "current_value": 15.9262,
-      "cur_price": 0.92,
+      "current_value": 15.7531,
+      "cur_price": 0.91,
       "outcome": "No",
       "slug": "us-agrees-to-give-ukraine-security-guarantee-by-june-30",
       "condition_id": "0x2a991c78fc614786691a47c0ac0321dd60a0fa4b475c91cbf7c2ec14bb5e6823",
-      "pnl_pct": 2.222,
+      "pnl_pct": 1.111,
       "side": "NO"
     },
     {
@@ -135,5 +135,5 @@
   "positions_count": 10,
   "wallet": "0x181A9735...",
   "mode": "LIVE",
-  "_updated_at": 1776624787
+  "_updated_at": 1776625093
 }
