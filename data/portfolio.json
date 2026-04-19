@@ -32,12 +32,12 @@
       "entry_price": 0.8399,
       "size": 28.5747,
       "initial_value": 24.0024,
-      "current_value": 24.4314,
-      "cur_price": 0.855,
+      "current_value": 24.1456,
+      "cur_price": 0.845,
       "outcome": "No",
       "slug": "will-ukraine-agree-to-cede-territory-to-russia-before-2027",
       "condition_id": "0x21bf9a7dae81b6bd51acae73185686ab8997b81b1401e4be10e114d472599c26",
-      "pnl_pct": 1.7869,
+      "pnl_pct": 0.5961,
       "side": "NO"
     },
     {
@@ -123,17 +123,17 @@
       "entry_price": 0.7,
       "size": 8.0571,
       "initial_value": 5.6399,
-      "current_value": 5.8414,
-      "cur_price": 0.725,
+      "current_value": 6.2442,
+      "cur_price": 0.775,
       "outcome": "No",
       "slug": "iran-agrees-to-unrestricted-shipping-through-hormuz-in-april",
       "condition_id": "0x3e1363efbf76899943f61797d0ffc2de5c47a716e2ec66189f45ab65b28078f9",
-      "pnl_pct": 3.5709,
+      "pnl_pct": 10.7127,
       "side": "NO"
     }
   ],
   "positions_count": 10,
   "wallet": "0x181A9735...",
   "mode": "LIVE",
-  "_updated_at": 1776636095
+  "_updated_at": 1776636404
 }
