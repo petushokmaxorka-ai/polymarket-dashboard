@@ -45,12 +45,12 @@
       "entry_price": 0.7899,
       "size": 23.2346,
       "initial_value": 18.3547,
-      "current_value": 18.9338,
-      "cur_price": 0.8149,
+      "current_value": 18.82,
+      "cur_price": 0.81,
       "outcome": "No",
       "slug": "ukraine-agrees-to-limit-size-of-armed-forces-before-2027",
       "condition_id": "0xec4e5a2666b14fedded928dc4dcd6b5f2d38cc1eba91755b8aa6de1fabd42a2f",
-      "pnl_pct": 3.1544,
+      "pnl_pct": 2.5344,
       "side": "NO"
     },
     {
@@ -135,5 +135,5 @@
   "positions_count": 10,
   "wallet": "0x181A9735...",
   "mode": "LIVE",
-  "_updated_at": 1776653006
+  "_updated_at": 1776653313
 }
